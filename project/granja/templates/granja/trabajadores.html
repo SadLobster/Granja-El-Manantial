@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+{% extends 'granja/administrador.html' %}
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block title %}<title>Trabajadores</title>{% endblock %}
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'granja/css/main.css' %}">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" 
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+    {% block content2 %}
+    <div class="row">
+      <div class="col-md-6 mx-2 py-2 pl-2">
+        {% if update %}
+        <h4 class="text-center">Actualizar Trabajador: {{ update.name }}</h4>
+        <form class="w-100" method="post" action="{% url 'update_worker' %}" id="worker_form_update">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="nombre_trabajador" class="form-label">Nombre del Trabajador</label>
+              <input type="text" value="{{ update.name }}" class="form-control" name="nombre_trabajador" id="nombre_trabajador" required aria-describedby="emailHelp" readonly>
+            </div>
+            <div class="mb-3">
+                <label for="num_identificacion" class="form-label">Número de Identificación</label>
+                <input type="text" value="{{ update.cc }}" readonly class="form-control" name="num_identificacion" id="num_identificacion" required aria-describedby="emailHelp">
+            </div>
+            <div class="mb-3">
+                <label for="rol" class="form-label">Rol del Trabajador</label>
+                <select class="form-select" name="rol" id="rol" required>
+                    {% for choice in update.ROLES %}
+                        {% if choice.0 == update.rol %}
+                            <option value="{{ choice.0 }}" selected>{{ choice.1 }}</option>
+                        {% else %}
+                            <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="salario" class="form-label">Salario</label>
+                <input type="text" value="{{ update.salario }}" class="form-control" name="salario" id="salrio" required oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+            </div>
+            <div class="mb-3">
+                <label for="direccion_residencia" class="form-label">Dirección de Residencia</label>
+                <input type="text" value="{{ update.direction }}" class="form-control" name="direccion_residencia" id="direccion_residencia" required>
+            </div>
+            <div class="mb-3">
+                <label for="telefono_contacto" class="form-label">Teléfono de Contacto</label>
+                <input type="text" value="{{ update.tel }}" class="form-control" name="telefono_contacto" id="telefono_contacto" required>
+            </div>
+            <div class="mb-3">
+                <label for="correo_electronico" class="form-label">Correo Electrónico</label>
+                <input type="email" value="{{ update.email }}" class="form-control" name="correo_electronico" id="correo_electronico" required>
+            </div>
+            <input type="hidden" name="id" value="{{ update.id }}" />          
+            <div class="row mb-3">
+                <div class="col-md-6">
+                  <button type="submit" class="btn btn-primary w-100">Update</button>
+                </div>
+                <div class="col-md-6">
+                  <a type="submit" href="{% url 'workers' %}" class="btn btn-danger w-100">Cancel</a>
+                </div>
+            </div>
+        </form>
+        {% else %}
+        <h4 class="text-center">Agregar Trabajador</h4>
+        <form class="w-100" method="post" action="{% url 'insert_worker' %}" id="form_worker">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="nombre_trabajador" class="form-label">Nombre del Trabajador</label>
+                <input type="text" class="form-control" name="nombre_trabajador" id="nombre_trabajador" required>
+            </div>
+            <div class="mb-3">
+                <label for="num_identificacion" class="form-label">Número de Identificación</label>
+                <input type="text" class="form-control" name="num_identificacion" id="num_identificacion" required oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+            </div>
+            <div class="mb-3">
+                <label for="rol" class="form-label">Rol del Trabajador</label>
+                <select class="form-select" name="rol" id="rol" required>
+                    {% for choice in Trabajador.ROLES %}
+                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="salario" class="form-label">Salario</label>
+                <input type="text" class="form-control" name="salario" id="salrio" required oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+            </div>
+            <div class="mb-3">
+                <label for="direccion_residencia" class="form-label">Dirección de Residencia</label>
+                <input type="text" class="form-control" name="direccion_residencia" id="direccion_residencia" required>
+            </div>
+            <div class="mb-3">
+                <label for="telefono_contacto" class="form-label">Teléfono de Contacto</label>
+                <input type="text" class="form-control" name="telefono_contacto" id="telefono_contacto" required oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+            </div>
+            <div class="mb-3">
+                <label for="correo_electronico" class="form-label">Correo Electrónico</label>
+                <input type="email" class="form-control" name="correo_electronico" id="correo_electronico" required>
+            </div>          
+            <div class="row mb-3">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                    <button type="submit" id="submit_btn" class="btn btn-success w-100">Add</button>
+                </div>
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                    <a type="submit" href="{% url 'workers' %}" class="btn btn-danger w-100">Cancel</a>
+                </div>
+            </div>
+        </form>
+            {% endif %}
+      </div>
+      <div class="col-md-5 mx-2 bg-light">
+        <div class="container">
+            <nav class="navbar navbar-light bg-light">
+                <form class="form-inline w-100" method="get" action="{% url 'lista_trabajadores' %}">
+                    <div class="input-group w-100">
+                        <input class="form-control mr-sm-2" type="search" placeholder="Buscar por: ID/Nombre/Rol" aria-label="Search">
+                        <div class="input-group-append">
+                          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                        </div>
+                    </div>
+                </form>
+              </nav>
+        </div>
+        <div class="scroll-div">
+            <div class="scroll-object">
+              <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 container justify-content-center">
+                {% for worker in db_data %}
+                <div class="row">
+                    <div class="card w-75 my-2 col">
+                        <div class="card-body">
+                            <h5 class="card-title">Registro Trabajador: {{ worker.cc }}
+                                <button type="button" class="btn" data-bs-toggle="popover" data-bs-title="Ultima Actualización" data-bs-content="Fecha: {{ worker.fecha_update }} / Encargado: {{ worker.encargado_update.first_name }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+                                    </svg>
+                                </button>
+                            </h5>
+                            <p class="card-text">Fecha: {{ worker.fecha_registro }}</p>
+                            <p class="card-text">Nombre del Trabajador: {{ worker.name }}</p>
+                            <div class="collapse" id="additionalInfo{{ worker.id }}">
+                                <p class="card-text"><b>Rol del Trabajador:</b></p>
+                                <p class="card-text" id="rol">{{ worker.rol }}</p>
+                                <p class="card-text"><b>Salario:</b></p>
+                                <p class="card-text" id="salario">$ {{ worker.salario }}</p>
+                                <p class="card-text"><b>Dirección de Residensia:</b></p>
+                                <p class="card-text" id="direccion_residencial">{{ worker.direction }}</p>
+                                <p class="card-text"><b>Teléfono de Contacto:</b></p>
+                                <p class="card-text" id="telefono_contacto">{{ worker.tel }}</p>
+                                <p class="card-text"><b>Correo Electrónico:</b></p>
+                                <p class="card-text" id="correo_electronico">{{ worker.email }}</p>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                    <button class="btn btn-info toggle-btn w-100" type="button" data-bs-toggle="collapse" data-bs-target="#additionalInfo{{ worker.id }}" aria-expanded="false" aria-controls="additionalInfo{{ worker.id }}">
+                                        Más
+                                    </button>
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                    <a href="{% url 'update_form_worker' worker.id %}" class="btn btn-primary">Update</a>
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                    <a href="#" onclick="confirmDelete('{{ worker.id }}')" class="btn btn-danger">Delete</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmDelete(workerId) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: '¡No podrás revertir esto!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminarlo'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Redirigir a la vista de eliminación
+                    window.location.href = "{% url 'delete_worker' 0 %}".replace('0', workerId);
+                }
+            });
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('submit_btn').addEventListener('click', function() {
+                event.preventDefault();
+                var numId = document.getElementById('num_identificacion').value;
+                
+                fetch("{% url 'insert_worker' %}?cc=" + numId)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.existe) {
+                        Swal.fire({
+                            title: '¡Error!',
+                            text: 'El número de identificación ya existe.',
+                            icon: 'error',
+                            confirmButtonColor: '#3085d6',
+                            confirmButtonText: 'Ok'
+                        });
+                    } else {
+                        Swal.fire({
+                            title: '¿Desea guardar el registro?',
+                            showCancelButton: true,
+                            confirmButtonText: 'Sí',
+                            cancelButtonText: 'Cancelar',
+                            icon: 'question'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                document.getElementById('form_worker').submit();
+                            }
+                        })
+                    }
+                })
+            });
+        });
+    </script>
+    <script>
+        document.getElementById('worker_form_update').addEventListener('submit', function(event) {
+        event.preventDefault(); // Evita enviar el formulario por defecto
+
+        Swal.fire({
+            title: '¿Desea guardar los cambios?',
+            showCancelButton: true,
+            confirmButtonText: 'Sí',
+            cancelButtonText: 'Cancelar',
+            icon: 'question'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Ahora sí se envia el formulario
+                this.submit();
+            }
+        });
+    });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {% for m in messages %}
+    <script>
+        Swal.fire({
+            title: '¡Eliminado!',
+            text: '{{m}}',
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK'
+        })
+    </script>
+    <script>
+        Swal.fire({
+            title: '¡Registro Guardado!',
+            text: '{{m}}',
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK'
+        })
+    </script>
+    <script>
+        Swal.fire({
+            title: '¡Cambios Guardados!',
+            text: '{{m}}',
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK'
+        })
+    </script>
+    {% if m.icon == 'error' %}
+    <script>
+        Swal.fire({
+            title: '¡Error!',
+            text: '{{m}}',
+            icon: 'error',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK'
+        })
+    </script>
+    {% endif %}
+    {% endfor %}
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const toggleBtns = document.querySelectorAll('.toggle-btn');
+        
+            toggleBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const buttonText = this.innerHTML;
+                    if (buttonText.trim() === 'Más') {
+                        this.innerHTML = 'Menos';
+                    } else {
+                        this.innerHTML = 'Más';
+                    }
+                });
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-cuBjsnJ7Ykf9JyUzBo5+6b94hanXmHJlljN9NtHmj5i/wOqSjYq5KoPUE4m4Jwb" crossorigin="anonymous"></script>  
+    <script>
+      $(document).ready(function() {
+        $('.collapse-show').collapse();
+        const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
+        const popoverList = [...popoverTriggerList].map(popoverTriggerEl => {
+          const popover = new bootstrap.Popover(popoverTriggerEl);
+          popoverTriggerEl.addEventListener('shown.bs.popover', () => {
+            setTimeout(() => {
+              popover.hide();
+            }, 900);
+          });
+          return popover
+        });
+      });
+    </script> 
+    {% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>

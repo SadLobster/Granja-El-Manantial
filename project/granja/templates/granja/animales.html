@@ -1,0 +1,523 @@
+{% extends 'granja/administrador.html' %}
+{% load static %}
+
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block title %}<title>Animales</title>{% endblock %}
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'granja/css/main.css' %}">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+    {% block content2 %}
+    <div class="row bg-light p-2 justify-content-between" style="border-radius: 10px;">
+        <div class="col-md-6 mx-2 py-2 pl-2 bg-light">
+          {% if update %}
+          <h4 class="text-center">Editar Animal: {{ update.num_id }}</h4>
+          <!-- Form para actualizar -->
+          <form class="w-100" method="post" action="{% url 'update_animal' %}" id="animal_form_update" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="num_identificacion" class="form-label">Número de Identificación</label>
+                <input type="text" value="{{ update.num_id }}" readonly class="form-control" name="num_identificacion" id="num_identificacion" required>
+            </div>
+            <div class="mb-3">
+                <label for="birthdate" class="form-label">Fecha de Nacimiento</label>
+                <input type="date" value="{{ update.birth|date:'Y-m-d' }}" readonly class="form-control" name="birthdate" id="birthdate" required>
+            </div>
+            <div class="mb-3">
+                <label for="breeds" class="form-label">Raza</label>
+                <input type="text" value="{{ update.breed }}" readonly class="form-control" name="breeds" id="breeds" required>
+            </div>
+            <div class="mb-3">
+                <label for="colors" class="form-label">Color</label>
+                <input type="text" value="{{ update.color }}" class="form-control" name="colors" id="colors">
+            </div>
+            <div class="mb-3">
+                <label for="sexos" class="form-label">Sexo</label>
+                <select class="form-select" name="sexos" id="sexos" readonly required>
+                    {% for choice in update.SEXS %}
+                        {% if choice.0 == update.sex %}
+                            <option value="{{ choice.0 }}" selected>{{ choice.1 }}</option>
+                        {% else %}
+                            <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="tipos" class="form-label">Tipo de Ganado</label>
+                <select class="form-select" name="tipos" id="tipos">
+                    {% for choice in update.TYPES %}
+                        {% if choice.0 == update.type %}
+                            <option value="{{ choice.0 }}" selected>{{ choice.1 }}</option>
+                        {% else %}
+                            <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <div class="mb-3" id="otro_tipo_div" style="display: none;">
+                    <label for="otro_tipo" class="form-label">Otro Tipo</label>
+                    <input type="text" class="form-control" name="otro_tipo" id="otro_tipo" value="{{ update.otro_tipo }}">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="health_status" class="form-label">Estado de Salud</label>
+                <select class="form-select" name="health_status" id="health_status">
+                    {% for choice in update.HEALTHS %}
+                        {% if choice.0 == update.health %}
+                            <option value="{{ choice.0 }}" selected>{{ choice.1 }}</option>
+                        {% else %}
+                            <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <div class="mb-3" id="otro_estatus_div" style="display: none;">
+                    <label for="otro_estatus" class="form-label">Otro Estado</label>
+                    <input type="text" class="form-control" name="otro_estatus" id="otro_estatus" value="{{ update.otra_salud }}">
+                </div>
+            </div>
+            <div class="mb-3">
+                {% if update.img_cow %}
+                    <img src="{{ update.img_cow.url }}" alt="Imagen del animal" class="card-img-top" style="max-width: 100px;">
+                    <br><br>
+                    <input type="file" class="form-control" id="imagen_cow" name="imagen_cow" accept="image/*">
+                {% else %}
+                    <input type="file" class="form-control" id="imagen_cow" name="imagen_cow" accept="image/*">
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                <label for="aditional_info" class="form-label">Información Adicional</label>
+                <input type="text" value="{{ update.aditional }}" class="form-control" name="aditional_info" id="aditional_info">
+            </div>
+            <input type="hidden" name="id" value="{{ update.id }}">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <button type="submit" class="btn btn-primary w-100">Update</button>
+                </div>
+                <div class="col-md-6">
+                    <a type="submit" href="{% url 'animals' %}" class="btn btn-danger w-100">Cancel</a>
+                </div>
+            </div>
+          </form>
+          {% else %}
+          <h4 class="text-center">Agregar Animal</h4>
+          <!-- Form para insertar -->
+          <form class="w-100" method="post" action="{% url 'insert_animal' %}" id="form_animal" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label for="num_identificacion" class="form-label">Número de Identificación</label>
+                <input type="text" class="form-control" name="num_identificacion" id="num_identificacion" required oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+              </div>
+              <div class="mb-3">
+                <label for="birthdate" class="form-label">Fecha de Nacimiento</label>
+                <input type="date" class="form-control" name="birthdate" id="birthdate" required >
+              </div>
+              <div class="mb-3">
+                <label for="breeds" class="form-label">Raza</label>
+                <input type="text" class="form-control" name="breeds" id="breeds" required >
+              </div>
+              <div class="mb-3">
+                <label for="colors" class="form-label">Color</label>
+                <input type="text" class="form-control" name="colors" id="colors" >
+              </div>
+              <div class="mb-3">
+                  <label for="sexos" class="form-label">Sexo</label>
+                  <select class="form-select" name="sexos" id="sexos" required >
+                      {% for choice in Animal.SEXS %}
+                      <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                      {% endfor %}
+                  </select>
+              </div>
+              <div class="mb-3">
+                <label for="tipos" class="form-label">Tipo de Ganado</label>
+                <select class="form-select" name="tipos" id="tipos" >
+                    {% for choice in Animal.TYPES %}
+                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                    {% endfor %}
+                </select>
+                <div class="mb-3" id="otro_tipo_div" style="display: none;">
+                  <label for="otro_tipo" class="form-label">Otro Tipo</label>
+                  <input class="form-control" type="text" name="otro_tipo" id="otro_tipo" >
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="health_status" class="form-label">Estado de Salud</label>
+                <select class="form-select" name="health_status" id="health_status" >
+                    {% for choice in Animal.HEALTHS %}
+                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                    {% endfor %}
+                </select>
+                <div class="mb-3" id="otro_estatus_div" style="display: none;">
+                  <label for="otro_estatus" class="form-label">Otro Estado</label>
+                  <input type="text" class="form-control" name="otro_estatus" id="otro_estatus" >
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="imagen_cow">Foto del Animal</label>
+                <input type="file" class="form-control" id="imagen_cow" name="imagen_cow" accept="image/*" required>
+              </div>
+              <div class="mb-3">
+                  <label for="aditional_info" class="form-label">Información Adicional</label>
+                  <textarea type="textarea" class="form-control" name="aditional_info" id="aditional_info" ></textarea>
+              </div>        
+              <div class="row mb-3">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                    <button type="submit" id="submit_btn" class="btn btn-success w-100">Add</button>
+                </div>
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                    <a type="submit" href="{% url 'animals' %}" class="btn btn-danger w-100">Cancel</a>
+                </div>
+            </div>
+          </form>
+              {% endif %}
+        </div>
+        <div class="col-md-5 mx-2 bg-light">
+          <div class="container">
+              <nav class="navbar navbar-light bg-light">
+                  <form class="form-inline w-100" method="get" action="{% url 'lista_animales' %}">
+                      <div class="input-group w-100">
+                          <input class="form-control mr-sm-2" type="search" name="search" placeholder="Buscar por: ID/Raza/Tipo" aria-label="Search">
+                          <div class="input-group-append">
+                            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                          </div>
+                      </div>
+                  </form>
+                </nav>
+          </div>
+          <div class="scroll-div">
+              <div class="scroll-object">
+                <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 container justify-content-center">
+                    
+                    <button onclick="reloadEdad()" class="btn" data-bs-toggle="tooltip" data-bs-placement="right" title="Recargar edades">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
+                            <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
+                          </svg>
+                    </button>
+                  {% for animal in db_data %}
+                  <div class="row">
+                    <div class="card w-75 my-2 col">
+                        <div class="card-body">
+                            {% if animal.estado == 'vendido' %}
+                                <button class="btn" data-bs-toggle="tooltip" data-bs-placement="right" title="Vendido">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red" class="bi bi-x-square" viewBox="0 0 16 16">
+                                        <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
+                                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                                    </svg>
+                                </button>
+                            {% else %}
+                            <button class="btn" data-bs-toggle="tooltip" data-bs-placement="right" title="En poseción">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="green" class="bi bi-check-circle" viewBox="0 0 16 16">
+                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                    <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05"/>
+                                </svg>
+                            </button>
+                            {% endif %}
+                            <h5 class="card-title">Registro Animal: {{ animal.num_id }}
+                                <button type="button" class="btn" data-bs-toggle="popover" data-bs-title="Ultima Actualización" data-bs-content="Fecha: {{ animal.fecha_update }} / Encargado: {{ animal.encargado_update.first_name }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+                                    </svg>
+                                </button>
+                            </h5>
+                            <p class="card-text">Fecha: {{ animal.fecha_insert }}</p>
+                            <p class="card-text">Encargado: {{ animal.encargado_insert.first_name }}</p>
+                            <p class="card-text"></p>
+                            <!-- Colapsable -->
+                            <div class="collapse" id="additionalInfo{{ animal.num_id }}">
+                                <p class="card-text"><b>Fecha de Nacimiento:</b></p>
+                                <p class="card-text">{{ animal.birth }}</p>
+                                <p class="card-text"><b>Edad:</b></p>
+                                <p class="card-text">{{ animal.edad }}</p>
+                                <p class="card-text"><b>Raza:</b></p>
+                                <p class="card-text">{{ animal.breed }}</p>
+                                <p class="card-text"><b>Color:</b></p>
+                                <p class="card-text">{{ animal.color }}</p>
+                                <p class="card-text"><b>Sexo:</b></p>
+                                <p class="card-text">{{ animal.sex }}</p>
+                                <p class="card-text"><b>Tipo de Ganado:</b></p>
+                                {% if animal.type != 'otro' %}
+                                <p class="card-text" id="tipos">{{ animal.type }}</p>
+                                {% else %}
+                                <p class="card-text" id="tipos">{{ animal.otro_tipo }}</p>
+                                {% endif %}
+                                <p class="card-text"><b>Estado de Salud:</b></p>
+                                {% if animal.health != 'otro' %}
+                                <p class="card-text" id="health_status">{{ animal.health }}</p>
+                                {% else %}
+                                <p class="card-text" id="health_status">{{ animal.otra_salud }}</p>
+                                {% endif %}
+                                <p class="card-text"><b>Peso:</b></p>
+                                <p class="card-text" id="health_status">{{ animal.peso }} {% if animal.peso != 'Hacer Primer Pesaje' %}Kg{% endif %}</p>
+                                <!-- El peso debe venir desde la tabla registros, al hacer el pesaje del animal -->
+                                {% if animal.img_cow %}
+                                <img src="{{ animal.img_cow.url }}" alt="Imagen del animal" class="card-img-top" style="max-width: 100px;">
+                                {% endif %}
+                                <p class="card-text"><b>Información Adicional:</b></p>
+                                <p class="card-text" id="additional_info">{{ animal.additional }}</p>
+                            </div>
+                            <!-- Botón para desplegar -->
+                            <div class="row mt-2">
+                              <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                <button class="btn btn-info toggle-btn" type="button" data-bs-toggle="collapse" data-bs-target="#additionalInfo{{ animal.num_id }}" aria-expanded="false" aria-controls="additionalInfo{{ animal.num_id }}">
+                                  Más
+                                </button>
+                              </div>
+                              {% if animal.estado == 'en poseción' %}
+                              <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                <a href="{% url 'update_form_animal' animal.id %}" class="btn btn-primary">Update</a>
+                              </div>
+                              {% endif %}
+                              <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                <a href="#" onclick="confirmDelete('{{ animal.id }}')" class="btn btn-danger">Delete</a>
+                              </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                  {% endfor %}
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+      <script>
+        function reloadEdad() {
+            $.ajax({
+                url: '{% url "update_edad" %}',
+                type: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                dataType: 'json',
+                success: function (response) {
+                    alert('Edades actualizadas correctamente');
+                    location.reload();
+                },
+                error: function (error) {
+                    alert('Error al actualizar las edades');
+                }
+            });
+        }
+      </script>
+      <!--function reloadEdad(numId) {
+            console.log(numId)
+            const csrftoken = getCookie('csrftoken')
+            $.ajax({
+                url: '{% url "update_edad" %}',
+                type: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken
+                },
+                data: {
+                    num_id: numId
+                },
+                dataType: 'json',
+                success: function (response) {
+                    const edadElement = document.querySelector(`#additionalInfo${numId} .card-text:nth-child(4)`);
+                    if (edadElement) {
+                        edadElement.textContent = response.edad;
+                    } else {
+                        console.error('Elemento de edad no encontrado en la interfaz.');
+                    }
+                },
+                error: function (error) {
+                    console.error('Error en la solicitud AJAX:', error);
+                }
+            });
+        }-->
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <!-- Evento para que aparezca el input al dar en la opción 'Otro' -->
+      <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const tiposSelect = document.getElementById('tipos');
+            const otroTipoDiv = document.getElementById('otro_tipo_div');
+    
+            // Verifica el valor inicial al cargar la página
+            if (tiposSelect.value === 'otro') {
+                otroTipoDiv.style.display = 'block';
+            }
+    
+            // Agrega un evento de cambio al select de tipos
+            tiposSelect.addEventListener('change', function () {
+                if (this.value === 'otro') {
+                    otroTipoDiv.style.display = 'block';
+                } else {
+                    otroTipoDiv.style.display = 'none';
+                }
+            });
+    
+            const healthSelect = document.getElementById('health_status');
+            const otroEstatusDiv = document.getElementById('otro_estatus_div');
+    
+            // Verifica el valor inicial al cargar la página
+            if (healthSelect.value === 'otro') {
+                otroEstatusDiv.style.display = 'block';
+            }
+    
+            // Agrega un evento de cambio al select de estados de salud
+            healthSelect.addEventListener('change', function () {
+                if (this.value === 'otro') {
+                    otroEstatusDiv.style.display = 'block';
+                } else {
+                    otroEstatusDiv.style.display = 'none';
+                }
+            });
+        });
+    </script>
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+      <script>
+          function confirmDelete(animalId) {
+              Swal.fire({
+                  title: '¿Estás seguro?',
+                  text: '¡No podrás revertir esto!',
+                  icon: 'warning',
+                  showCancelButton: true,
+                  confirmButtonColor: '#3085d6',
+                  cancelButtonColor: '#d33',
+                  confirmButtonText: 'Sí, eliminarlo'
+              }).then((result) => {
+                  if (result.isConfirmed) {
+                      // Redirigir a la vista de eliminación
+                      window.location.href = "{% url 'delete_animal' 0 %}".replace('0', animalId);
+                  }
+              });
+          }
+      </script>
+
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('submit_btn').addEventListener('click', function() {
+                event.preventDefault();
+                var numId = document.getElementById('num_identificacion').value;
+                
+                fetch("{% url 'insert_animal' %}?num_id=" + numId)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.existe) {
+                        Swal.fire({
+                            title: '¡Error!',
+                            text: 'El número de identificación ya existe.',
+                            icon: 'error',
+                            confirmButtonColor: '#3085d6',
+                            confirmButtonText: 'Ok'
+                        });
+                    } else {
+                        Swal.fire({
+                            title: '¿Desea guardar el registro?',
+                            showCancelButton: true,
+                            confirmButtonText: 'Sí',
+                            cancelButtonText: 'Cancelar',
+                            icon: 'question'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                document.getElementById('form_animal').submit();
+                            }
+                        })
+                    }
+                })
+            });
+        });
+
+      </script>
+     
+      <script>
+          document.getElementById('animal_form_update').addEventListener('submit', function(event) {
+          event.preventDefault(); // Evita enviar el formulario por defecto
+ 
+          Swal.fire({
+              title: '¿Desea guardar los cambios?',
+              showCancelButton: true,
+              confirmButtonText: 'Sí',
+              cancelButtonText: 'Cancelar',
+              icon: 'question'
+          }).then((result) => {
+              if (result.isConfirmed) {
+                  // Ahora sí se envia el formulario
+                  this.submit();
+              }
+          });
+      });
+      </script>
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+      {% for m in messages %}
+      <script>
+          Swal.fire({
+              title: '¡Eliminado!',
+              text: '{{m}}',
+              icon: 'success',
+              confirmButtonColor: '#3085d6',
+              confirmButtonText: 'OK'
+          })
+      </script>
+      <script>
+          Swal.fire({
+              title: '¡Registro Guardado!',
+              text: '{{m}}',
+              icon: 'success',
+              confirmButtonColor: '#3085d6',
+              confirmButtonText: 'OK'
+          })
+      </script>
+      <script>
+          Swal.fire({
+              title: '¡Cambios Guardados!',
+              text: '{{m}}',
+              icon: 'success',
+              confirmButtonColor: '#3085d6',
+              confirmButtonText: 'OK'
+          })
+      </script>
+      {% endfor %}
+      <!-- Función para cabiar el texto del toggle-btn (pasar a un js general)-->
+      <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const toggleBtns = document.querySelectorAll('.toggle-btn');
+        
+            toggleBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const buttonText = this.innerHTML;
+                    if (buttonText.trim() === 'Más') {
+                        this.innerHTML = 'Menos';
+                    } else {
+                        this.innerHTML = 'Más';
+                    }
+                });
+            });
+        });
+        </script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl5+5hb7F9ql4c5ZPZdT5S5cz7EpO6i6bbp5eFZ/bk" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-cuBjsnJ7Ykf9JyUzBo5+6b94hanXmHJlljN9NtHmj5i/wOqSjYq5KoPUE4m4Jwb" crossorigin="anonymous"></script>
+        <script>
+          $(document).ready(function() {
+            $('.collapse-show').collapse();
+            const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
+            const popoverList = [...popoverTriggerList].map(popoverTriggerEl => {
+              const popover = new bootstrap.Popover(popoverTriggerEl);
+              popoverTriggerEl.addEventListener('shown.bs.popover', () => {
+                setTimeout(() => {
+                  popover.hide();
+                }, 900);
+              });
+              return popover;
+            });
+          });
+          document.addEventListener('DOMContentLoaded', function () {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+            });
+        </script>
+        
+    {% endblock %}
+</body>
+</html>

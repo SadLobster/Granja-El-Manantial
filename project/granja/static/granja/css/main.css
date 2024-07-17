@@ -1,0 +1,99 @@
+body{
+    background: #093028;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #237A57, #093028);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #237A57, #093028); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+#login-page{
+    background: #093028;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #237A57, #093028);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #237A57, #093028);
+}
+
+#contenedor-admin{
+    -webkit-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+    box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+}
+
+.contenedor-modulos{
+    -webkit-box-shadow: 1px 2px 5px 4px rgba(0,0,0,0.75);
+    -moz-box-shadow: 1px 2px 5px 4px rgba(0,0,0,0.75);
+    box-shadow: 1px 2px 5px 4px rgba(0,0,0,0.75);
+}
+
+#carouselExampleAutoplaying img{
+    height: 468px;
+}
+
+#intro{
+    vertical-align: middle;
+    justify-content: center;
+}
+
+.card-title{
+    text-align: center;
+}
+
+.contenedor{
+    background-color: #237A57;
+}
+
+#footer{
+    background-color: rgba(33, 37, 41, 1);
+    color: white;
+    margin-top: auto;
+}
+
+#logo{
+    width: 200px;
+    height: auto;
+    padding-right: 5px;
+}
+
+.nav-item{
+    padding-right: 2px;
+}
+
+.formulario-datos{
+    color: white;
+}
+
+.registers{
+    justify-content: right;
+    position: absolute;
+    overflow-y: scroll;
+}
+
+.formularios{
+    color: white;
+}
+
+.scroll-div{
+    height: 800px;
+    overflow: hidden;
+    overflow-y: scroll;
+}
+
+#scroll-entries{
+    display: flex;
+    justify-content: right;
+}
+
+textarea{
+    resize: none;
+}
+
+.chart{
+    width: 100%;
+    min-height: 400px;
+}
+
+.text-bienvenido{
+    display: flex;
+    color: white;
+    text-align: right;
+}

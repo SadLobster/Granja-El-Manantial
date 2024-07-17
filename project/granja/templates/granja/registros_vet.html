@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+{% extends 'granja/administrador.html' %}
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block title %}<title>R/Veterinarios</title>{% endblock %}
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'granja/css/main.css' %}">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" 
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+    {% block content2 %}
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <div class="row">
+      <div class="col-md-6 mx-2 py-2 pl-2">
+        <h4 class="text-center">Agregar Registro de Salud</h4>
+        <form class="w-100" method="post" action="{% url 'insert_record' %}" id="formRegistros">
+          {% csrf_token %}
+          
+          <!-- Selección del tipo de registro -->
+          <div class="mb-3">
+              <label class="form-label">Selecciona el tipo de registro:</label><br>
+              <input type="radio" class="form-check-input" id="estado_general" name="registro" value="estado_general">
+              <label for="estado_general" class="form-check-label">Estado General del Animal</label><br>
+              <input type="radio" class="form-check-input" id="registro_vacunacion" name="registro" value="registro_vacunacion">
+              <label for="registro_vacunacion" class="form-check-label">Registro de Vacunación</label><br>
+              <input type="radio" class="form-check-input" id="registro_tratamiento" name="registro" value="registro_tratamiento">
+              <label for="registro_tratamiento" class="form-check-label">Registro de Tratamiento Médico</label><br>
+              <input type="radio" class="form-check-input" id="registro_peso" name="registro" value="registro_peso">
+              <label for="registro_peso" class="form-check-label">Registro de Peso</label><br>
+              <input type="radio" class="form-check-input" id="registro_inseminaciones" name="registro" value="registro_inseminaciones">
+              <label for="registro_inseminaciones" class="form-check-label">Registro de Inseminaciones o Montas</label><br>
+              <input type="radio" class="form-check-input" id="registro_partos" name="registro" value="registro_partos">
+              <label for="registro_partos" class="form-check-label">Registro de Partos</label>
+          </div>
+          
+          <!-- Campos de formulario dinámicos -->
+          <div id="dynamic_form_fields"></div>
+          
+          <script>
+              // Función para mostrar campos de formulario según la opción seleccionada
+              document.querySelectorAll('input[name="registro"]').forEach(function(el) {
+                  el.addEventListener('change', function() {
+                      var selected_option = document.querySelector('input[name="registro"]:checked').value;
+                      var form_fields = document.getElementById('dynamic_form_fields');
+                      form_fields.innerHTML = ""; // Limpiar campos previos
+              
+                      var animal_select = 
+                      `<div class="mb-3">
+                          <label for="animal_id" class="form-label">Número de Identificación del Animal:</label>
+                          <select id="animal_id" name="animal_id" class="form-select" required>
+                            {% for animal in animal_data %}
+                            {% if animal.estado == 'en poseción' %}
+                              <option value="{{ animal.num_id }}">{{ animal }}</option>
+                            {% endif %}
+                            {% endfor %}
+                          </select>
+                      </div>`;
+              
+                      switch (selected_option) {
+                          case "estado_general":
+                              form_fields.innerHTML = animal_select + 
+                                  `<div class="mb-3">
+                                      <label for="sintomas" class="form-label">¿El animal muestra signos de enfermedad o malestar?</label><br>
+                                      <input type="radio" id="si" name="sintomas" value="si">
+                                      <label for="si">Sí</label><br>
+                                      <input type="radio" id="no" name="sintomas" value="no">
+                                      <label for="no">No</label>
+                                  </div>
+                                  <div class="mb-3">
+                                      <label for="descripcion_registro" class="form-label">Descripción de los síntomas:</label>
+                                      <textarea id="descripcion_registro" name="descripcion_registro" class="form-control"></textarea>
+                                  </div>`;
+                              break;
+              
+                          case "registro_vacunacion":
+                              form_fields.innerHTML = animal_select + 
+                                  `<div class="mb-3">
+                                      <label for="nombre_vacuna" class="form-label">Nombre de la vacuna:</label>
+                                      <select id="nombre_vacuna" name="nombre_vacuna" class="form-select">
+                                        {% for vacuna in vacunas_list %}
+                                        {% if vacuna.cantidad > 0 %}
+                                        <option value="{{ vacuna.name }}">{{ vacuna }}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                      </select>
+                                  </div>
+                                  <div class="mb-3">
+                                      <label for="descripcion_registro" class="form-label">Descripción del Tratamiento:</label>
+                                      <textarea id="descripcion_registro" name="descripcion_registro" class="form-control"></textarea>
+                                  </div>`;
+                              break;
+              
+                          case "registro_tratamiento":
+                              form_fields.innerHTML = animal_select + 
+                                  `<div class="mb-3">
+                                      <label for="nombre_medicamento" class="form-label">Nombre del medicamento:</label>
+                                      <select id="nombre_medicamento" name="nombre_medicamento" class="form-select">
+                                        {% for medicamento in medicamento_list %}
+                                        {% if medicamento.cantidad > 0 %}
+                                        <option value="{{ medicamento.name }}">{{ medicamento }}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                      </select>
+                                  </div>
+                                  <div class="mb-3">
+                                      <label for="razon_tratamiento" class="form-label">Razón del tratamiento:</label>
+                                      <textarea id="razon_tratamiento" name="razon_tratamiento" class="form-control"></textarea>
+                                  </div>
+                                  <div class="mb-3">
+                                      <label for="dosis_administrada" class="form-label">Dosis administrada:</label>
+                                      <input type="text" id="dosis_administrada" name="dosis_administrada" class="form-control">
+                                  </div>`;
+                              break;
+              
+                          case "registro_peso":
+                              form_fields.innerHTML = animal_select + 
+                                  `<div class="mb-3">
+                                      <label for="peso_actual" class="form-label">Peso Actual del Animal:</label>
+                                      <input type="text" id="peso_actual" name="peso_actual" class="form-control">
+                                  </div>`;
+                              break;
+              
+                          case "registro_inseminaciones":
+                              animal_select =  
+                                  `<div class="mb-3">
+                                    <label for="animal_id" class="form-label">Número de Identificación del Animal:</label>
+                                    <select id="animal_id" name="animal_id" class="form-select" required>
+                                      {% for animal in animal_data %}
+                                      {% if animal.estado == 'en poseción' and animal.categoria_edad == 'vaca' %}
+                                        <option value="{{ animal.num_id }}">{{ animal }}</option>
+                                      {% endif %}
+                                      {% endfor %}
+                                    </select>
+                                </div>`
+                              form_fields.innerHTML = animal_select + 
+                                  `
+                                  <div class="mb-3">
+                                      <label for="metodo_inseminacion" class="form-label">Método:</label>
+                                      <select id="metodo_inseminacion" name="metodo_inseminacion" class="form-select">
+                                        {% for choice in Registro.TIPOS %}
+                                        <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                                        {% endfor %}
+                                      </select>
+                                  </div>
+                                  <div class="mb-3">
+                                      <label for="id_toro" class="form-label">ID del toro o material genético utilizado:</label>
+                                      <select id="id_toro" name="id_toro" class="form-select">
+                                        {% for toro in toros_list %}
+                                        <option value="{{ toro.num_id }}">{{ toro }}</option>
+                                        {% endfor %}
+                                      </select>
+                                  </div>`;
+                              break;
+              
+                          case "registro_partos":
+                              animal_select = 
+                                `<div class="mb-3">
+                                    <label for="animal_id" class="form-label">Número de Identificación del Animal:</label>
+                                    <select id="animal_id" name="animal_id" class="form-select" required>
+                                      {% for animal in animal_data %}
+                                      {% if animal.estado == 'en poseción' and animal.categoria_edad == 'vaca' %}
+                                        <option value="{{ animal.num_id }}">{{ animal }}</option>
+                                      {% endif %}
+                                      {% endfor %}
+                                    </select>
+                                </div>`
+                              form_fields.innerHTML = animal_select + 
+                                  `<div class="mb-3">
+                                      <label for="numero_crias" class="form-label">Número de crías:</label>
+                                      <input type="text" id="numero_crias" name="numero_crias" class="form-control">
+                                  </div>
+                                  <div class="mb-3">
+                                      <label for="estado_crias" class="form-label">Estado de salud de las crías:</label>
+                                      <select id="estado_crias" name="estado_crias" class="form-select">
+                                        {% for choice in produccion.ESTADOS %}
+                                        <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                                        {% endfor %}
+                                      </select>
+                                  </div>`;
+                              break;
+              
+                          default:
+                              form_fields.innerHTML = "";
+                              break;
+                      }
+                  });
+              });
+          </script>
+          <div class="row mb-3">
+            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                <button type="submit" id="submit_btn" class="btn btn-success w-100">Add</button>
+            </div>
+            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                <a href="{% url 'record' %}" class="btn btn-danger w-100">Cancel</a>
+            </div>
+        </div>
+      </form>      
+      </div>
+      <div class="col-md-5 mx-2 bg-light">
+        <div class="container">
+            <nav class="navbar navbar-light bg-light">
+                <form class="form-inline w-100" method="get" action="{% url 'lista_registros' %}">
+                    <div class="input-group">
+                        <input class="form-control mr-sm-2" type="search" name="search" placeholder="Buscar por: Fecha/Tipo de Registro/ID Animal" aria-label="Search">
+                        <div class="input-group-append">
+                          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                        </div>
+                    </div>
+                </form>
+              </nav>
+        </div>
+        <div class="scroll-div">
+            <div class="scroll-object">
+              {% for registro in db_data %}
+                {% if registro.tipo == 'estado_general' %}
+                <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 container justify-content-center">
+                    <div class="row">
+                      <div class="card w-75 my-2 col">
+                        <div class="card-body">
+                          <h5 class="card-title">Registro Salud: {{ registro.tipo }}</h5>
+                          <p class="card-text">Fecha: {{ registro.fecha_insert }}</p>
+                          <p class="card-text">Encargado: {{ registro.encargado_insert.first_name }}</p>
+                          <p class="card-text">ID Animal: {{ registro.id_animal }}</p>
+                          <p class="card-text">¿Presenta signos de enfermedad?: {{ registro.general }}</p>
+                          <p class="card-text">Descripción: {{ registro.descripcion }}</p>
+                          <div class="row mt-2">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                              <a href="#" onclick="confirmDelete('{{ registro.id }}')" class="btn btn-danger w-100">Delete</a>
+                            </div>
+                        </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {% elif registro.tipo == 'registro_vacunacion' %}
+                  <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 container justify-content-center">
+                    <div class="row">
+                      <div class="card w-75 my-2 col">
+                        <div class="card-body">
+                          <h5 class="card-title">Registro Salud: {{ registro.tipo }}</h5>
+                          <p class="card-text">Fecha: {{ registro.fecha_insert }}</p>
+                          <p class="card-text">Encargado: {{ registro.encargado_insert.first_name }}</p>
+                          <p class="card-text">ID Animal: {{ registro.id_animal }}</p>
+                          <p class="card-text">Nombre de la vacuna: {{ registro.nom_vacuna }}</p>
+                          <p class="card-text">Descripción del Tratamiento: {{ registro.descripcion }}</p>
+                          <div class="row mt-2">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                              <a href="#" onclick="confirmDelete('{{ registro.id }}')" class="btn btn-danger w-100">Delete</a>
+                            </div>
+                        </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {% elif registro.tipo == 'registro_tratamiento' %}
+                  <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 container justify-content-center">
+                    <div class="row">
+                      <div class="card w-75 my-2 col">
+                        <div class="card-body">
+                          <h5 class="card-title">Registro Salud: {{ registro.tipo }}</h5>
+                          <p class="card-text">Fecha: {{ registro.fecha_insert }}</p>
+                          <p class="card-text">Encargado: {{ registro.encargado_insert.first_name }}</p>
+                          <p class="card-text">ID Animal: {{ registro.id_animal }}</p>
+                          <p class="card-text">Nombre del medicamento: {{ registro.nom_medicamento }}</p>
+                          <p class="card-text">Razón del tratamiento: {{ registro.razon }}</p>
+                          <p class="card-text">Dosis administrada: {{ registro.dosis }}</p>
+                          <div class="row mt-2">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                              <a href="#" onclick="confirmDelete('{{ registro.id }}')" class="btn btn-danger w-100">Delete</a>
+                            </div>
+                        </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {% elif registro.tipo == 'registro_peso' %}
+                  <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 container justify-content-center">
+                    <div class="row">
+                      <div class="card w-75 my-2 col">
+                        <div class="card-body">
+                          <h5 class="card-title">Registro Salud: {{ registro.tipo }}</h5>
+                          <p class="card-text">Fecha: {{ registro.fecha_insert }}</p>
+                          <p class="card-text">Encargado: {{ registro.encargado_insert.first_name }}</p>
+                          <p class="card-text">ID Animal: {{ registro.id_animal }}</p>
+                          <p class="card-text">Peso Actual del Animal: {{ registro.peso }}</p>
+                          <div class="row mt-2">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                              <a href="#" onclick="confirmDelete('{{ registro.id }}')" class="btn btn-danger w-100">Delete</a>
+                            </div>
+                        </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {% elif registro.tipo == 'registro_inseminaciones' %}
+                  <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 container justify-content-center">
+                    <div class="row">
+                      <div class="card w-75 my-2 col">
+                        <div class="card-body">
+                          <h5 class="card-title">Registro Salud: {{ registro.tipo }}
+
+                          </h5>
+                          <p class="card-text">Fecha: {{ registro.fecha_insert }}</p>
+                          <p class="card-text">Encargado: {{ registro.encargado_insert.first_name }}</p>
+                          <p class="card-text">ID Animal: {{ registro.id_animal }}</p>
+                          <p class="card-text">Método: {{ registro.tipo_iseminacion }}</p>
+                          <p class="card-text">ID del toro o material genético utilizado: {{ registro.mat_genetico }}</p>
+                          <div class="row mt-2">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                              <a href="#" onclick="confirmDelete('{{ registro.id }}')" class="btn btn-danger w-100">Delete</a>
+                            </div>
+                        </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {% else %}
+                  <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 container justify-content-center">
+                    <div class="row">
+                      <div class="card w-75 my-2 col">
+                        <div class="card-body">
+                          <h5 class="card-title">Registro Salud: {{ registro.tipo }}</h5>
+                          <p class="card-text">Fecha del parto: {{ registro.fecha_insert }}</p>
+                          <p class="card-text">Encargado: {{ registro.encargado_insert.first_name }}</p>
+                          <p class="card-text">Número de crías: {{ registro.num_crias }}</p>
+                          <p class="card-text">Estado de salud de las crías: {{ registro.estado }}</p>
+                          <div class="row mt-2">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                              <a href="#" onclick="confirmDelete('{{ registro.id }}')" class="btn btn-danger w-100">Delete</a>
+                            </div>
+                        </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-3 px-2">
+      <h5>Generar Gráficos</h5>
+      <div class="accordion accordion-flush" id="accordionFlushExample">
+          <div class="accordion-item">
+              <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                      data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                      Gráfico de Fluctuación de Registros de Salud
+                  </button>
+              </h2>
+              <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                  <div class="accordion-body">
+                      <form id="formFluctuacionRegistros" class="w-100">
+                          <div class="mb-3">
+                              <label class="form-label">Seleccione el tipo de registro:</label><br>
+                              <select id="tipo_registro" name="tipo_registro" class="form-select" required>
+                                  <option value="estado_general">Estado General del Animal</option>
+                                  <option value="registro_vacunacion">Registro de Vacunación</option>
+                                  <option value="registro_tratamiento">Registro de Tratamiento Médico</option>
+                                  <option value="registro_peso">Registro de Peso</option>
+                                  <option value="registro_inseminaciones">Registro de Inseminaciones o Montas</option>
+                                  <option value="registro_partos">Registro de Partos</option>
+                              </select>
+                          </div>
+                          <div class="input-group mb-2">
+                              <label class="input-group-text" for="rango_fecha">Seleccione un rango de fecha</label>
+                              <input type="text" name="rango_fecha" id="rango_fecha" class="form-control" required>
+                          </div>
+                          <div class="mb-3">
+                              <button type="submit" class="btn btn-primary mb-2">Generar Gráfico</button>
+                          </div>
+                      </form>
+                      <div id="chartFluctuacionRegistros" class="bg-light mt-3 w-100" style="height: 600px;"></div>
+                  </div>
+              </div>
+          </div>
+          <div class="accordion-item">
+              <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                      data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+                      Gráfico de Seguimiento a la Cantidad de Crías
+                  </button>
+              </h2>
+              <div id="flush-collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                  <div class="accordion-body">
+                      <form id="formCantidadCrias" class="w-100">
+                          <div class="mb-3">
+                              <label class="form-label" for="listaVacas">Seleccione un Animal</label>
+                              <select id="listaVacas" name="listaVacas" class="form-select" required>
+                                  {% for vaca in vacas_list %}
+                                  <option value="{{ vaca.num_id }}">{{ vaca }}</option>
+                                  {% endfor %}
+                              </select>
+                          </div>
+                          <div class="input-group mb-2">
+                              <label class="input-group-text" for="rango_fecha_crias">Seleccione un rango de fecha</label>
+                              <input type="text" name="rango_fecha_crias" id="rango_fecha_crias" class="form-control" required>
+                          </div>
+                          <div class="mb-3">
+                              <button type="submit" class="btn btn-primary mb-2">Generar Gráfico</button>
+                          </div>
+                      </form>
+                      <div id="chartCantidadCrias" class="bg-light mt-3 w-100" style="height: 600px;"></div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+  
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+  <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          // Inicialización del gráfico de fluctuación de registros de salud
+          var chartFluctuacionRegistros = echarts.init(document.getElementById('chartFluctuacionRegistros'));
+          var formFluctuacionRegistros = document.getElementById('formFluctuacionRegistros');
+          var optionFluctuacionRegistros = {
+              xAxis: {
+                  type: 'category',
+                  data: []
+              },
+              yAxis: {
+                  type: 'value'
+              },
+              series: [{
+                  type: 'line',
+                  data: []
+              }]
+          };
+          chartFluctuacionRegistros.setOption(optionFluctuacionRegistros);
+      
+          formFluctuacionRegistros.addEventListener('submit', function(event) {
+              event.preventDefault();
+              var formData = new FormData(formFluctuacionRegistros);
+              var queryString = new URLSearchParams(formData).toString();
+      
+              fetch(`{% url "grafico_salud" %}?${queryString}`, {
+                  method: 'GET',
+                  headers: {
+                      'X-Requested-With': 'XMLHttpRequest'
+                  }
+              })
+              .then(response => response.json())
+              .then(data => {
+                  chartFluctuacionRegistros.setOption({
+                      title: {
+                          text: 'Fluctuación de Registros de Salud: ' + data.nombre
+                      },
+                      xAxis: {
+                          data: data.fechas
+                      },
+                      series: [{
+                          type: 'line',
+                          data: data.cantidades,
+                          itemStyle: {
+                              color: data.color
+                          },
+                          lineStyle: {
+                              color: data.color
+                          }
+                      }]
+                  });
+              })
+              .catch(error => console.error('Error:', error));
+          });
+  
+          // Inicialización del gráfico de seguimiento a la cantidad de crías
+          var chartCantidadCrias = echarts.init(document.getElementById('chartCantidadCrias'));
+          var formCantidadCrias = document.getElementById('formCantidadCrias');
+          var optionCantidadCrias = {
+              xAxis: {
+                  type: 'category',
+                  data: []
+              },
+              yAxis: {
+                  type: 'value'
+              },
+              series: [{
+                  type: 'bar',
+                  data: []
+              }]
+          };
+          chartCantidadCrias.setOption(optionCantidadCrias);
+      
+          formCantidadCrias.addEventListener('submit', function(event) {
+              event.preventDefault();
+              var formData = new FormData(formCantidadCrias);
+              var queryString = new URLSearchParams(formData).toString();
+      
+              fetch(`{% url "grafico_crias" %}?${queryString}`, {
+                  method: 'GET',
+                  headers: {
+                      'X-Requested-With': 'XMLHttpRequest'
+                  }
+              })
+              .then(response => response.json())
+              .then(data => {
+                  chartCantidadCrias.setOption({
+                      title: {
+                          text: 'Cantidad de Crías por Fecha: ' + data.nombre
+                      },
+                      xAxis: {
+                          data: data.fechas
+                      },
+                      series: [{
+                          type: 'bar',
+                          data: data.cantidades,
+                          itemStyle: {
+                              color: data.color
+                          }
+                      }]
+                  });
+              })
+              .catch(error => console.error('Error:', error));
+          });
+  
+          // Redimensionamiento automático de los gráficos con el contenedor
+          function resizeCharts() {
+              chartFluctuacionRegistros.resize();
+              chartCantidadCrias.resize();
+          }
+  
+          // Redimensionamiento inicial y en eventos de redimensionamiento del contenedor
+          resizeCharts();
+          window.addEventListener('resize', resizeCharts);
+          document.getElementById('accordionFlushExample').addEventListener('shown.bs.collapse', resizeCharts);
+      });
+  </script>
+  
+  
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Confirmar la eliminación -->
+    <script>
+      function confirmDelete(registroId) {
+          Swal.fire({
+              title: '¿Estás seguro?',
+              text: '¡No podrás revertir esto!',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#3085d6',
+              cancelButtonColor: '#d33',
+              confirmButtonText: 'Sí, eliminarlo'
+          }).then((result) => {
+              if (result.isConfirmed) {
+                  // Redirigir a la vista de eliminación
+                  window.location.href = "{% url 'delete_record' 0 %}".replace('0', registroId);
+              }
+          });
+      }
+  </script>
+  <!-- Confirmar la inserción -->
+  <script>
+      document.getElementById('formRegistros').addEventListener('submit', function(event) {
+      event.preventDefault(); // Evita enviar el formulario por defecto
+      var tipoRegistro = document.getElementsByName('registro')
+
+      Swal.fire({
+          title: '¿Desea guardar el registro?',
+          showCancelButton: true,
+          confirmButtonText: 'Sí',
+          cancelButtonText: 'Cancelar',
+          icon: 'question'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              // Ahora sí se envia el formulario
+              this.submit();
+          }
+      });
+  });
+  </script>
+  {% for m in messages %}
+  <script>
+      Swal.fire({
+          title: '¡Eliminado!',
+          text: '{{m}}',
+          icon: 'success',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'OK'
+      })
+  </script>
+  <script>
+      Swal.fire({
+          title: '¡Registro Guardado!',
+          text: '{{m}}',
+          icon: 'success',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'OK'
+      })
+  </script>
+  <script>
+      Swal.fire({
+          title: '¡Cambios Guardados!',
+          text: '{{m}}',
+          icon: 'success',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'OK'
+      })
+  </script>
+  {% endfor %}
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script>
+      $(function() {
+        $('#rango_fecha').daterangepicker({
+          locale: {
+            format: 'YYYY-MM-DD'
+          },
+          startDate: moment().startOf('month'),
+          endDate: moment().endOf('month'),
+          opens: 'right',
+          drops: 'down',
+          showDropdowns: true
+        });
+      });
+
+      $(function() {
+        $('#rango_fecha_crias').daterangepicker({
+          locale: {
+            format: 'YYYY-MM-DD'
+          },
+          startDate: moment().startOf('month'),
+          endDate: moment().endOf('month'),
+          opens: 'right',
+          drops: 'down',
+          showDropdowns: true
+        });
+      });
+    </script>
+    {% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+{% extends 'granja/home.html' %}
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block title %}<title>Administrador</title>{% endblock %}
+</head>
+<body>
+    {% block inner_title %}El Manantial: Administrador{% endblock %}
+{% block nav_option1 %}{% endblock %}
+{% block nav_option2 %}{% endblock %}
+{% block nav_option3 %}{% endblock %}
+{% block nav_option4 %}
+<a href="#" class="nav-item nav-link" data-bs-toggle="modal" data-bs-target="#profileModal">
+  <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="green" class="bi bi-person-circle" viewBox="0 0 16 16">
+    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+    <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+  </svg>
+  <button type="button" class="btn btn-sm p-2"></button>
+</a>
+{% endblock %} 
+
+    {% block nav_option5 %}<a href="{% url 'logout' %}"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="green" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
+      <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
+      <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+    </svg><button type="button" class="btn btn-sm p-2"></button></a>{% endblock %}
+    {% block content %}
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'granja/css/main.css' %}">
+    <div class="container my-5" id="menu">
+      <div class="row">
+        <div class="col-12 col-sm-12 col-md-7 col-lg-7 col-xl-7">
+          <ul class="nav nav-tabs" id="tab-menu">
+            {% url 'animals' as animals_url %}
+            {% url 'workers' as workers_url %}
+            {% url 'supplies' as supplies_url %}
+            {% url 'production' as production_url %}
+            {% url 'sales' as sales_url %}
+            {% url 'record' as record_url %}
+            <style>
+              #tab-menu .nav-link.active, #tab-menu .nav-link:hover {
+                background-color: #fff;
+                }
+              .nav-link {
+                color: #fff;
+              }
+            </style>
+
+            {% block tab_option1 %}
+            <li class="nav-item mt-2">
+              <a class="nav-link {% if request.path == workers_url %}active{% endif %}" href="{% url 'workers' %}">Trabajadores</a>
+            </li>
+            {% endblock %}
+            {% block tab_option2 %}
+            <li class="nav-item mt-2">
+              <a class="nav-link {% if request.path == supplies_url %}active{% endif %}" href="{% url 'supplies' %}">Suministros</a>
+            </li>
+            {% endblock %}
+            {% block tab_option3 %}
+            <li class="nav-item mt-2">
+              <a class="nav-link {% if request.path == record_url %}active{% endif %}" href="{% url 'record' %}">Registros de Salud</a>
+            </li>
+            {% endblock %}
+            {% block tab_option4 %}
+            <li class="nav-item dropdown mt-2">
+              <a class="nav-link dropdown-toggle {% if request.path == production_url or request.path == animals_url or request.path == sales_url %}active{% endif %}" 
+              href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {% if request.path == sales_url %}Ventas Ganado/Leche
+                {% elif request.path == production_url %}Producción Leche
+                {% elif request.path == animals_url %}Registro Ganado
+                {% else %}Producción/Venta{% endif %}
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item {% if request.path == production_url %}active{% endif %}" href="{% url 'production' %}">Producción Leche</a></li>
+                <li><a class="dropdown-item {% if request.path == animals_url %}active{% endif %}" href="{% url 'animals' %}">Registro Ganado</a>
+                <li><a class="dropdown-item {% if request.path == sales_url %}active{% endif %}" href="{% url 'sales' %}">Ventas Ganado/Leche</a></li>
+              </ul>
+            </li>
+            {% endblock %}
+          </ul>
+        </div>
+        <div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 mt-2 mb-0 p-0">
+          <div class="text-bienvenido" style="color: white; text-align: right;">
+            <h4 style="color: #fff;">Bienvenido! {{ user.first_name }}.</h4>
+          </div>
+        </div>
+      </div>
+      <div class="container-fluid bg-light p-2 justify-content-between" style="border-radius: 10px;" id="contenedor-admin">
+        {% block content2 %}
+
+        {% endblock %}
+      </div>
+    </div>
+    {% endblock %}
+</body>
+</html>

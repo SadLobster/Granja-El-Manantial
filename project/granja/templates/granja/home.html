@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block title %}<title>Inicio</title>{% endblock %}
+    <!-- Favicon <link rel="icon" type="image/png" sizes="16x16"  href="{% static 'granja/img/favicon.png' %}"> -->
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'granja/css/main.css' %}">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" 
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+
+<body>
+    <!-- Navbar Start -->
+    <nav class="navbar navbar-expand-lg bg-white navbar-light sticky-top px-4 px-lg-5">
+      <a href="{% url 'index' %}" class="navbar-brand d-flex align-items-center">
+          <h1 class="m-0">{% block inner_title %}El Manantial{% endblock %}</h1>
+      </a>
+      <button type="button" class="navbar-toggler me-0" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+          <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarCollapse">
+          <div class="navbar-nav ms-auto p-4 p-lg-0">
+              {% block nav_option1 %}<a href="{% url 'index' %}" class="nav-item nav-link">Inicio</a>{% endblock %}
+              {% block nav_option2 %}<a href="{% url 'about' %}" class="nav-item nav-link">Sobre Nosotros</a>{% endblock %}
+              {% block nav_option3 %}<a href="{% url 'product' %}" class="nav-item nav-link">Productos</a>{% endblock %}
+              {% block nav_option4 %}<a href="{% url 'team' %}" class="nav-item nav-link">Nuestro Equipo</a>{% endblock %}
+          </div>
+          <div class="border-start ps-4 d-none d-lg-block">
+              {% block nav_option5 %}<a href="{% url 'login' %}"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-key-fill" viewBox="0 0 16 16">
+                  <path d="M3.5 11.5a3.5 3.5 0 1 1 3.163-5H14L15.5 8 14 9.5l-1-1-1 1-1-1-1 1-1-1-1 1H6.663a3.5 3.5 0 0 1-3.163 2M2.5 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
+                </svg><button type="button" class="btn btn-sm p-2"></button></a>{% endblock %}
+          </div>
+      </div>
+  </nav>
+  <!-- Navbar End -->
+  {% block content %}
+  
+  {% endblock %}
+  <!-- Modal -->
+  <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="profileModalLabel">Perfil de Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Formulario del perfil -->
+                <form id="profileForm">
+                    <div class="mb-2">
+                        <label for="name" class="form-label">Nombre completo</label>
+                        <input type="text" class="form-control" id="name" value="{{ user.first_name }}" readonly>
+                    </div>
+                    <div class="mb-2">
+                        <label for="username" class="form-label">Usuario/Número de documento</label>
+                        <input type="text" class="form-control" id="username" value="{{ user.username }}" readonly>
+                    </div>
+                    <div class="mb-2">
+                        <label for="role" class="form-label">Rol</label>
+                        <input type="text" class="form-control" id="role" value="{{ trabajador.rol }}" readonly>
+                    </div>
+                    <div class="mb-2">
+                        <label for="salary" class="form-label">Salario</label>
+                        $<input type="text" class="form-control" id="salary" value="{{ trabajador.salario }}" readonly>
+                    </div>
+                    <div class="mb-2">
+                        <label for="phone" class="form-label">Número de teléfono</label>
+                        <input type="text" class="form-control" id="phone" value="{{ trabajador.tel }}" readonly>
+                    </div>
+                    <div class="mb-2">
+                        <label for="email" class="form-label">Correo electrónico</label>
+                        <input type="text" class="form-control" id="email" value="{{ trabajador.email }}" readonly>
+                    </div>
+                    <div class="mb-2">
+                        <label for="password" class="form-label">Nueva contraseña</label>
+                        <input type="password" class="form-control" id="password">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="saveChanges">Guardar cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+     <!-- Footer Start -->
+     <div class="container-fluid bg-dark footer mt-5 py-5 wow fadeIn" data-wow-delay="0.1s">
+      <div class="container py-5">
+          <div class="row g-5">
+              <div class="col-lg-4 col-md-6">
+                  <h5 class="text-white mb-4">Nuestra Finca</h5>
+                  <p class="mb-2 text-white"><i class="fa fa-map-marker-alt me-3"></i>El Oriente, Planeta Rica, Córdoba</p>
+                  <p class="mb-2 text-white"><i class="fa fa-phone-alt me-3"></i>+57 30000000</p>
+                  <p class="mb-2 text-white"><i class="fa fa-envelope me-3"></i>info@ejemplo.com</p>
+                  <!--<div class="d-flex pt-3">
+                      <a class="btn btn-square btn-secondary rounded-circle me-2" href=""><i class="fab fa-twitter"></i></a>
+                      <a class="btn btn-square btn-secondary rounded-circle me-2" href=""><i class="fab fa-facebook-f"></i></a>
+                      <a class="btn btn-square btn-secondary rounded-circle me-2" href=""><i class="fab fa-youtube"></i></a>
+                      <a class="btn btn-square btn-secondary rounded-circle me-2" href=""><i class="fab fa-linkedin-in"></i></a>
+                  </div>-->
+              </div>
+              <!--<div class="col-lg-3 col-md-6">
+                  <h5 class="text-white mb-4">Link Rapidos</h5>
+                  <a class="btn btn-link" href="">Sobre Nosotros</a>
+                  <a class="btn btn-link" href="">Contactanos</a>
+                  <a class="btn btn-link" href="">Nuestros Servicios</a>
+                  <a class="btn btn-link" href="">Terminos y Condiciones</a>
+                  <a class="btn btn-link" href="">Soporte</a>
+              </div>-->
+              <div class="col-lg-4 col-md-6">
+                  <h5 class="text-white mb-4">Horario</h5>
+                  <p class="mb-1 text-white">Lunes a Viernes</p>
+                  <h6 class="text-light">09:00 am - 07:00 pm</h6>
+                  <p class="mb-1 text-white">Sabado</p>
+                  <h6 class="text-light">09:00 am - 12:00 pm</h6>
+                  <p class="mb-1 text-white">Domingos</p>
+                  <h6 class="text-light">Cerrado</h6>
+              </div>
+              <!--<div class="col-lg-3 col-md-6">
+                  <h5 class="text-white mb-4">Boletin informativo</h5>
+                  <p>Dolor amet sit justo amet elitr clita ipsum elitr est.</p>
+                  <div class="position-relative w-100">
+                      <input class="form-control bg-transparent w-100 py-3 ps-4 pe-5" type="text" placeholder="Your email">
+                      <button type="button" class="btn btn-secondary py-2 position-absolute top-0 end-0 mt-2 me-2">Enviar</button>
+                  </div>
+              </div>-->
+              <div class="col-lg-4 col-md-6">
+                  <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d997.0356639120864!2d-75.56914837553643!3d8.398927926056146!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e5bb02e64b01aed%3A0x1bf9b6f9e1ff3abc!2sEl%20Oriente%2C%20Planeta%20Rica%2C%20C%C3%B3rdoba!5e1!3m2!1ses!2sco!4v1720650972255!5m2!1ses!2sco" width="400" height="250" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>                    </div>
+          </div>
+      </div>
+  </div>
+  <!-- Footer End -->
+
+
+  <!-- Copyright Start -->
+  <div class="container-fluid bg-secondary text-body copyright py-4">
+      <div class="container">
+          <div class="row">
+              <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                  &copy; <a class="fw-semi-bold" href="{% url 'team' %}">Equipo de Trabajo</a>, Todo Los Derechos Reservados.
+              </div>
+              <div class="col-md-6 text-center text-md-end">
+                  <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
+                  Diseñado Por: <a class="fw-semi-bold" href="{% url 'team' %}">Estudiantes De ADSO La Salada</a>
+              </div>
+          </div>
+      </div>
+  </div>
+  <!-- Copyright End -->
+   
+    <script src="///cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {% if messages %}
+        {% for m in messages %}
+                {% if m.tags == 'error' %}
+                <script>
+                    Swal.fire({
+                        "title": "",
+                        "text" : "{{m}}",
+                        "icon" : "error"
+                    })
+                </script> 
+                {% else %}
+                    <script>
+                        Swal.fire({
+                        "title": "",
+                        "text" : "{{m}}",
+                        "icon" : "success"
+                    })
+                    </script>
+                {% endif %}
+        {% endfor %}
+    {% endif %}
+    
+    
+     <!-- Bootstrap JS -->
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+     <script>
+        document.getElementById('saveChanges').addEventListener('click', function() {
+            var newPassword = document.getElementById('password').value;
+            
+            if (!newPassword) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'La nueva contraseña no puede estar vacía.'
+                });
+                return;
+            }
+            
+            fetch("{% url 'change_password' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    'new_password': newPassword
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Éxito',
+                        text: 'La contraseña ha sido cambiada exitosamente.'
+                    });
+                    document.getElementById('profileForm').reset();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

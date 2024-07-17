@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Factura</title>
+</head>
+<body>
+    <h1>Factura #{{ venta.id }}</h1>
+    <p>Fecha: {{ venta.fecha_insert }}</p>
+    <p>Nombre del Cliente: {{ venta.nom_cli }}</p>
+    <p>Email: {{ venta.email_cli }}</p>
+    <p>Tipo de Venta: {{ venta.tipo }}</p>
+    <p>Cantidad: {{ venta.cantidad }}</p>
+    <p>Pecio Total: {{ venta.precio_total }}</p>
+    <p>Información Adicional: {{ venta.adicional }}</p>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+
+{% load static %}
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Finca El Manantial</title>
+        <meta content="width=device-width, initial-scale=1.0" name="viewport">
+        <meta content="" name="keywords">
+        <meta content="" name="description">
+    
+        <!-- Favicon -->
+        <link href="{% static 'granja/img/favicon.ico'%}" rel="icon">
+    
+        <!-- Google Web Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">   
+    
+        <!-- Icon Font Stylesheet -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+        <!-- Libraries Stylesheet -->
+        <link href="{% static 'granja/lib/animate/animate.min.css' %}" rel="stylesheet">
+        <link href="{% static 'granja/lib/owlcarousel/assets/owl.carousel.min.css' %}" rel="stylesheet">
+        <link href="{% static 'granja/lib/lightbox/css/lightbox.min.css' %}" rel="stylesheet">
+    
+        <!-- Customized Bootstrap Stylesheet -->
+        <link href="{% static 'granja/css/bootstrap.min.css' %}" rel="stylesheet">
+    
+        <!-- Template Stylesheet -->
+        <link href="{% static 'granja/css/style.css'%}" rel="stylesheet">
+    </head>
+
+
+<body>
+    
+    
+    <!-- Spinner Start -->
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+    </div>
+    <!-- Spinner End -->
+
+
+    <!-- Topbar Start
+     <div class="container-fluid bg-dark px-0">
+        <div class="row g-0 d-none d-lg-flex">
+            <div class="col-lg-6 ps-5 text-start">
+                <div class="h-100 d-inline-flex align-items-center text-light">
+                    <span>Siguenos:</span>
+                    <a class="btn btn-link text-light" href=""><i class="fab fa-facebook-f"></i></a>
+                    <a class="btn btn-link text-light" href=""><i class="fab fa-twitter"></i></a>
+                    <a class="btn btn-link text-light" href=""><i class="fab fa-linkedin-in"></i></a>
+                    <a class="btn btn-link text-light" href=""><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-end">
+                <div class="h-100 bg-secondary d-inline-flex align-items-center text-dark py-2 px-4">
+                    <span class="me-2 fw-semi-bold"><i class="fa fa-phone-alt me-2"></i>Llamanos:</span>
+                    <span>+57 3000000000</span>
+                </div>
+            </div>
+        </div>
+    </div> -->
+    
+    <!-- Topbar End -->
+
+
+    <!-- Navbar Start -->
+    <nav class="navbar navbar-expand-lg bg-white navbar-light sticky-top px-4 px-lg-5">
+        <a href="{% url 'index' %}" class="navbar-brand d-flex align-items-center">
+            <h1 class="m-0">{% block inner_title %}El Manantial{% endblock %}</h1>
+        </a>
+        <button type="button" class="navbar-toggler me-0" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav ms-auto p-4 p-lg-0">
+                {% block nav_option1 %}<a href="{% url 'index' %}" class="nav-item nav-link">Inicio</a>{% endblock %}
+                {% block nav_option2 %}<a href="{% url 'about' %}" class="nav-item nav-link">Sobre Nosotros</a>{% endblock %}
+                {% block nav_option3 %}<a href="{% url 'product' %}" class="nav-item nav-link">Productos</a>{% endblock %}
+                {% block nav_option4 %}<a href="{% url 'team' %}" class="nav-item nav-link">Nuestro Equipo</a>{% endblock %}
+            </div>
+            <div class="border-start ps-4 d-none d-lg-block">
+                {% block nav_option5 %}<a href="{% url 'login' %}"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-key-fill" viewBox="0 0 16 16">
+                    <path d="M3.5 11.5a3.5 3.5 0 1 1 3.163-5H14L15.5 8 14 9.5l-1-1-1 1-1-1-1 1-1-1-1 1H6.663a3.5 3.5 0 0 1-3.163 2M2.5 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
+                  </svg><button type="button" class="btn btn-sm p-2"></button></a>{% endblock %}
+            </div>
+        </div>
+    </nav>
+    <!-- Navbar End -->
+    {% block content %}
+    
+    {% endblock %}
+        <!-- Footer Start -->
+        <div class="container-fluid bg-dark footer mt-5 py-5 wow fadeIn" data-wow-delay="0.1s">
+            <div class="container py-5">
+                <div class="row g-5">
+                    <div class="col-lg-4 col-md-6">
+                        <h5 class="text-white mb-4">Nuestra Finca</h5>
+                        <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>El Oriente, Planeta Rica, Córdoba</p>
+                        <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+57 30000000</p>
+                        <p class="mb-2"><i class="fa fa-envelope me-3"></i>info@ejemplo.com</p>
+                        <!--<div class="d-flex pt-3">
+                            <a class="btn btn-square btn-secondary rounded-circle me-2" href=""><i class="fab fa-twitter"></i></a>
+                            <a class="btn btn-square btn-secondary rounded-circle me-2" href=""><i class="fab fa-facebook-f"></i></a>
+                            <a class="btn btn-square btn-secondary rounded-circle me-2" href=""><i class="fab fa-youtube"></i></a>
+                            <a class="btn btn-square btn-secondary rounded-circle me-2" href=""><i class="fab fa-linkedin-in"></i></a>
+                        </div>-->
+                    </div>
+                    <!--<div class="col-lg-3 col-md-6">
+                        <h5 class="text-white mb-4">Link Rapidos</h5>
+                        <a class="btn btn-link" href="">Sobre Nosotros</a>
+                        <a class="btn btn-link" href="">Contactanos</a>
+                        <a class="btn btn-link" href="">Nuestros Servicios</a>
+                        <a class="btn btn-link" href="">Terminos y Condiciones</a>
+                        <a class="btn btn-link" href="">Soporte</a>
+                    </div>-->
+                    <div class="col-lg-4 col-md-6">
+                        <h5 class="text-white mb-4">Horario</h5>
+                        <p class="mb-1">Lunes a Viernes</p>
+                        <h6 class="text-light">09:00 am - 07:00 pm</h6>
+                        <p class="mb-1">Sabado</p>
+                        <h6 class="text-light">09:00 am - 12:00 pm</h6>
+                        <p class="mb-1">Domingos</p>
+                        <h6 class="text-light">Cerrado</h6>
+                    </div>
+                    <!--<div class="col-lg-3 col-md-6">
+                        <h5 class="text-white mb-4">Boletin informativo</h5>
+                        <p>Dolor amet sit justo amet elitr clita ipsum elitr est.</p>
+                        <div class="position-relative w-100">
+                            <input class="form-control bg-transparent w-100 py-3 ps-4 pe-5" type="text" placeholder="Your email">
+                            <button type="button" class="btn btn-secondary py-2 position-absolute top-0 end-0 mt-2 me-2">Enviar</button>
+                        </div>
+                    </div>-->
+                    <div class="col-lg-4 col-md-6">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d997.0356639120864!2d-75.56914837553643!3d8.398927926056146!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e5bb02e64b01aed%3A0x1bf9b6f9e1ff3abc!2sEl%20Oriente%2C%20Planeta%20Rica%2C%20C%C3%B3rdoba!5e1!3m2!1ses!2sco!4v1720650972255!5m2!1ses!2sco" width="400" height="250" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Footer End -->
+    
+    
+        <!-- Copyright Start -->
+        <div class="container-fluid bg-secondary text-body copyright py-4">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                        &copy; <a class="fw-semi-bold" href="{% url 'team' %}">Equipo de Trabajo</a>, Todo Los Derechos Reservados.
+                    </div>
+                    <div class="col-md-6 text-center text-md-end">
+                        <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
+                        Diseñado Por: <a class="fw-semi-bold" href="{% url 'team' %}">Estudiantes De ADSO La Salada</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Copyright End -->
+    
+    
+        <!-- Back to Top -->
+        <a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-circle back-to-top"><i class="bi bi-arrow-up"></i></a>
+    
+    
+        <!-- JavaScript Libraries -->
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="{% static 'granja/lib/wow/wow.min.js'%}"></script>
+        <script src="{% static 'granja/lib/easing/easing.min.js'%}"></script>
+        <script src="{% static 'granja/lib/waypoints/waypoints.min.js'%}"></script>
+        <script src="{% static 'granja/lib/owlcarousel/owl.carousel.min.js'%}"></script>
+        <script src="{% static 'granja/lib/counterup/counterup.min.js'%}"></script>
+        <script src="{% static 'granja/lib/parallax/parallax.min.js'%}"></script>
+        <script src="{% static 'granja/lib/lightbox/js/lightbox.min.js'%}"></script>
+    
+        <!-- Template Javascript -->
+        <script src="{% static 'granja/js/main.js'%}"></script>
+        
+</body>
+</html>

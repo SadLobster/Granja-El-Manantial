@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends 'granja/base.html' %}
+{% load static %}
+{% block content %}
+<body>
+    <!-- Page Header Start -->
+    <div class="container-fluid page-header py-5 mb-5 wow fadeIn" data-wow-delay="0.1s">
+        <div class="container text-center py-5">
+            <h1 class="display-3 text-white mb-4 animated slideInDown">Nuestro Equipo</h1>
+            <nav aria-label="breadcrumb animated slideInDown">
+                <ol class="breadcrumb justify-content-center mb-0">
+                    <li class="breadcrumb-item"><a href="#">Inicio</a></li>
+                    <li class="breadcrumb-item"><a href="#">Paginas</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Nuestro Equipo</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <!-- Page Header End -->
+
+
+  
+     <!-- Team Start -->
+     <div class="container-xxl py-5">
+        <div class="container">
+            <div class="text-center mx-auto wow fadeInUp" data-wow-delay="0.1s" style="max-width: 500px;">
+                <p class="section-title bg-white text-center text-primary px-3">Nuestro Equipo</p>
+                <h1 class="mb-5">Experiencia De Los Miembros Del Equipo</h1>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="team-item rounded p-4">
+                        <img class="img-fluid rounded mb-4" src="{% static 'granja/img/yo.png'%}" alt="">
+                        <h5>Juan Jose Solano Gallego</h5>
+                        <p class="text-primary">Programador</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="team-item rounded p-4">
+                        <img class="img-fluid rounded mb-4" src="{% static 'granja/img/mario.jpeg'%}" alt="">
+                        <h5>Mario Jose Hernandez Casillas</h5>
+                        <p class="text-primary">Programador</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="team-item rounded p-4">
+                        <img class="img-fluid rounded mb-4" src="{% static 'granja/img/duvan.jpeg'%}" alt="">
+                        <h5>Yeison Duvan Saldarriaga Araque</h5>
+                        <p class="text-primary">Programador</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Team End -->
+
+     {% endblock %}
+</body>
+
+</html>

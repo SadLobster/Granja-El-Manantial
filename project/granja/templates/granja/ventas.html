@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+{% extends 'granja/administrador.html' %}
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block title %}<title>Venta</title>{% endblock %}
+    <!-- CSS Main -->
+    <link rel="stylesheet" href="{% static 'granja/css/main.css' %}">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" 
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Moment.js -->
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/min/moment.min.js"></script>
+
+</head>
+<body>
+    {% block content2 %}
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <div class="row">
+      <div class="col-md-6 mx-2 py-2 pl-2">
+        <h4 class="text-center">Agregar Venta</h4>
+            <!--INSERT-->
+            <div class="mb-3">
+                <label for="tipoVenta" class="form-label">Tipo de Venta:</label><br>
+                <input type="radio" class="form-check-input" name="tipoVenta" id="ventaLeche" value="leche">
+                <label for="ventaLeche" class="form-check-label">Leche</label><br>
+                <input type="radio" class="form-check-input" name="tipoVenta" id="cabezaGanado" value="ventaGanado">
+                <label for="cabezaGanado" class="form-check-label">Cabeza de ganado</label>
+            </div>
+
+            <form class="w-100" method="post" action="{% url 'insert_sale' %}" id="ventaLecheForm" style="display: none;">
+                {% csrf_token %}
+                <input type="hidden" name="tipoVenta" value="leche">
+                <div class="mb-3">
+                    <label for="cantidadLeche" class="form-label">Cantidad de Leche Vendida (litros):</label>
+                    <input type="text" class="form-control" name="cantidadLeche" id="cantidadLeche" required>
+                </div>
+                <div class="mb-3" id="produccionesList">
+                    <!-- Producciones seleccionadas se mostrarán aquí -->
+                </div>
+                <div class="mb-3">
+                    <label for="precioLitro" class="form-label">Precio por Litro:</label>
+                    <input type="text" class="form-control" name="precioLitro" id="precioLitro" required>
+                </div>
+                <div class="mb-3">
+                    <label for="nombreClienteL" class="form-label">Nombre del Cliente:</label>
+                    <input type="text" class="form-control" name="nombreClienteL" id="nombreClienteL" required>
+                </div>
+                <div class="mb-3">
+                    <label for="emailClienteL" class="form-label">Correo del Cliente:</label>
+                    <input type="email" class="form-control" name="emailClienteL" id="emailClienteL" required>
+                </div>
+                <div class="mb-3">
+                    <label for="observacionesLeche" class="form-label">Observaciones:</label>
+                    <textarea name="observacionesLeche" class="form-control" id="observacionesLeche"></textarea>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                        <button type="submit" class="btn btn-success w-100">Add</button>
+                    </div>
+                    <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                        <a href="{% url 'sales' %}" class="btn btn-danger w-100">Cancel</a>
+                    </div>
+                </div>
+            </form>
+
+        <form class="w-100" method="post" action="{% url 'insert_sale' %}" id="cabezaGanadoForm" style="display: none;">
+            {% csrf_token %}
+            <input type="hidden" name="tipoVenta" value="ventaGanado">
+            <div class="mb-3">
+                <label for="tipoGanado" class="form-label">Tipo de Ganado (vacas, terneros, toros, etc.):</label>
+                <select id="tipoGanado" name="tipoGanado" class="form-select" required>
+                    <option value="0" disabled selected>Escoja un tipo de ganado</option>
+                    {% for choice in Venta.TIPOS %}
+                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="cantidadCabezas" class="form-label">Cantidad de Cabezas Vendidas:</label>
+                <input type="text" class="form-control" name="cantidadCabezas" id="cantidadCabezas" required oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+            </div>
+            <div class="mb-3">
+                <label for="idCabezas" class="form-label">ID de las Cabezas vendidas:</label>
+                <select id="idCabezas" name="idCabezas" class="form-select" required multiple>
+                    <!--Las opciones vienen desde el evento de js-->
+                </select>
+            </div>
+            <div class="mb-3" id="preciosUnitarios">
+                <!-- Inputs para precios unitarios se agregarán aquí -->
+            </div>
+            <div class="mb-3">
+                <label for="nombreCliente" class="form-label">Nombre del Cliente:</label>
+                <input type="text" class="form-control" name="nombreCliente" id="nombreCliente" required>
+            </div>
+            <div class="mb-3">
+                <label for="emailCliente" class="form-label">Correo del Cliente:</label>
+                <input type="email" class="form-control" name="emailCliente" id="emailCliente" required>
+            </div>
+            <div class="mb-3">
+                <label for="observacionesGanado" class="form-label">Observaciones:</label>
+                <textarea name="observacionesGanado" class="form-control" id="observacionesGanado"></textarea>
+            </div>
+            <div class="row mb-3">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                    <button type="submit" id="submit_btn" class="btn btn-success w-100">Add</button>
+                </div>
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                    <a href="{% url 'sales' %}" class="btn btn-danger w-100">Cancel</a>
+                </div>
+            </div>
+        </form>
+        <row>
+            <h5>Generar Reportes de Ventas</h5>
+            <form class="w-100" method="post" action="{% url 'generar_reporte' %}" id="reporteVentas">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="tipoReporte" class="form-label">Seleccione el Reporte que Desea</label>
+                    <select id="tipoReporte" name="tipoReporte" class="form-select" required>
+                        <option value="lecheGanado">Generar un Reporte General</option>
+                        <option value="leche">Reporte de Ventas de Leche</option>
+                        <option value="ganado">Reporte de Ventas de Ganado</option>
+                    </select>
+                </div>
+                <div class="input-group mb-2">
+                    <label class="input-group-text" for="rango_fecha">Seleccione un Rango de Fecha:</label>
+                    <input type="text" name="rango_fecha" id="rango_fecha" class="form-control" required>
+                </div>
+                <button class="btn" type="submit" data-bs-toggle="tooltip" data-bs-placement="right" title="Descargar Reporte">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="blue" class="bi bi-download" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+                      </svg>
+                </button>
+            </form>
+        </row>
+      </div>
+      <div class="col-md-5 mx-2 bg-light">
+        <div class="container">
+            <nav class="navbar navbar-light bg-light">
+                <form class="form-inline w-100" method="get" action="{% url 'lista_sale' %}">
+                    <div class="input-group w-100">
+                        <input class="form-control mr-sm-2" type="search" placeholder="Buscar por: Fecha/Tipo Venta-Ganado" aria-label="Search">
+                        <div class="input-group-append">
+                          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                        </div>
+                    </div>
+                </form>
+              </nav>
+        </div>
+        <div class="scroll-div">
+            <div class="scroll-object">
+                {% for venta in db_data %}
+                {% if venta.tipo == 'leche' %}
+                <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 container justify-content-center">
+                    <div class="row">
+                        <div class="card w-75 my-2 col">
+                            <div class="card-body">
+                                <h5 class="card-title">Registro Venta: {{venta.tipo}}</h5>
+                                <p class="card-text">Fecha de Venta: {{venta.fecha_insert}}</p>
+                                <p class="card-text">Cantidad de Leche Producida (litros): {{venta.cantidad}}</p>
+                                <p class="card-text">Precio por Litro: $ {{venta.precio_uni}}</p>
+                                <p class="card-text">Precio por Total: $ {{venta.precio_total}}</p>
+                                <p class="card-text">Nombre Cliente: {{venta.nom_cli}}</p>
+                                <p class="card-text">Email: {{venta.email_cli}}</p>
+                                <p class="card-text">Observaciones: {{venta.adicional}}</p>
+                                <div class="row mt-2">
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                      <a href="#" onclick="confirmDelete('{{ venta.id }}')" class="btn btn-danger w-100">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 container justify-content-center">
+                    <div class="row">
+                        <div class="card w-75 my-2 col">
+                            <div class="card-body">
+                                <h5 class="card-title">Registro Venta: {{venta.tipo}}</h5>
+                                <p class="card-text">Fecha de Venta: {{venta.fecha_insert}}</p>
+                                <p class="card-text">Tipo de Ganado: {{venta.tipo_ganado}}</p>
+                                <p class="card-text">Cantidad de Cabezas Vendidas: {{venta.cantidad}}</p>
+                                <p class="card-text">ID de las Cabezas Vendidas y Precio Unitario:</p>
+                                <ul>
+                                    {% for id_vendida, unitario in venta.id_unitario_pairs %}
+                                        <li>{{ id_vendida }} ($ {{ unitario }})</li>
+                                    {% endfor %}
+                                    </ul>
+                                <p class="card-text">Precio Total: $ {{venta.precio_total}}</p>
+                                <p class="card-text">Observaciones: {{venta.adicional}}</p>
+                                <div class="row mt-2">
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                      <a href="#" onclick="confirmDelete('{{ venta.id }}')" class="btn btn-danger w-100">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/min/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script>
+  $(function() {
+    $('#rango_fecha').daterangepicker({
+      locale: {
+        format: 'YYYY-MM-DD'
+      },
+      startDate: moment().startOf('month'),
+      endDate: moment().endOf('month'),
+      opens: 'right',
+      drops: 'down',
+      showDropdowns: true
+    });
+  });
+
+  $(function() {
+    $('#rango_fecha_crias').daterangepicker({
+      locale: {
+        format: 'YYYY-MM-DD'
+      },
+      startDate: moment().startOf('month'),
+      endDate: moment().endOf('month'),
+      opens: 'right',
+      drops: 'down',
+      showDropdowns: true
+    });
+  });
+</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script id="producciones-data" type="application/json">
+        {{ producciones|safe }}
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const producciones = JSON.parse(document.getElementById('producciones-data').textContent);
+    
+            function seleccionarProduccion() {
+                var cantidadLeche = document.getElementById('cantidadLeche');
+                var cantidad = parseFloat(cantidadLeche.value);
+                if (isNaN(cantidad) || cantidad <= 0) {
+                    alert('Ingrese una cantidad válida.');
+                    cantidadLeche.value = '';
+                    return;
+                }
+    
+                let cantidadDisponible = producciones.reduce((acc, prod) => acc + parseFloat(prod.cantidad_leche), 0);
+    
+                if (cantidad > cantidadDisponible) {
+                    alert('No hay suficiente producción para satisfacer la cantidad requerida.');
+                    document.getElementById('submit_btn').disabled = true;
+                    cantidadLeche.value = '';
+                    return;
+                }
+    
+                document.getElementById('submit_btn').disabled = false;
+    
+                let cantidadRestante = cantidad;
+                let produccionSeleccionada = [];
+    
+                for (let i = 0; i < producciones.length; i++) {
+                    if (cantidadRestante <= 0) break;
+                    let produccion = producciones[i];
+                    if (produccion.cantidad_leche <= cantidadRestante) {
+                        cantidadRestante -= produccion.cantidad_leche;
+                        produccionSeleccionada.push(produccion);
+                    } else {
+                        produccionSeleccionada.push({ ...produccion, cantidad_leche: cantidadRestante });
+                        cantidadRestante = 0;
+                    }
+                }
+    
+                const registrosDiv = document.getElementById('produccionesList');
+                registrosDiv.innerHTML = '';
+    
+                produccionSeleccionada.forEach(registro => {
+                    const div = document.createElement('div');
+                    div.textContent = `Animal: ${registro.vaca} (Cantidad: ${registro.cantidad_leche} / Fecha: ${registro.fecha_insert})`;
+                    registrosDiv.appendChild(div);
+                });
+            }
+    
+            document.getElementById('cantidadLeche').addEventListener('input', seleccionarProduccion);
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var ventaLecheRadio = document.getElementById("ventaLeche");
+            var cabezaGanadoRadio = document.getElementById("cabezaGanado");
+            var ventaLecheForm = document.getElementById("ventaLecheForm");
+            var cabezaGanadoForm = document.getElementById("cabezaGanadoForm");
+    
+            ventaLecheRadio.addEventListener("change", function() {
+                if (ventaLecheRadio.checked) {
+                    ventaLecheForm.style.display = "block";
+                    cabezaGanadoForm.style.display = "none";
+                }
+            });
+    
+            cabezaGanadoRadio.addEventListener("change", function() {
+                if (cabezaGanadoRadio.checked) {
+                    cabezaGanadoForm.style.display = "block";
+                    ventaLecheForm.style.display = "none";
+                }
+            });
+        });
+
+        document.getElementById('idCabezas').addEventListener('change', function() {
+            let seleccionados = Array.from(this.selectedOptions).map(option => option.value);
+            let preciosUnitariosDiv = document.getElementById('preciosUnitarios');
+            preciosUnitariosDiv.innerHTML = ''; // Limpiar los inputs existentes
+
+            seleccionados.forEach((id, index) => {
+                let inputGroup = document.createElement('div');
+                inputGroup.className = 'mb-3';
+
+                let label = document.createElement('label');
+                label.className = 'form-label';
+                label.innerText = 'Precio Unitario para Cabeza ' + (index + 1) + ' (ID: ' + id + '):';
+
+                let input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'form-control';
+                input.name = 'precioUnitario';
+                input.required = true;
+
+                inputGroup.appendChild(label);
+                inputGroup.appendChild(input);
+
+                preciosUnitariosDiv.appendChild(inputGroup);
+            });
+        });
+    </script>
+    <!-- Confirmar la eliminación -->
+    <script>
+        function confirmDelete(ventaId) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: '¡No podrás revertir esto!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminarlo'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Redirigir a la vista de eliminación
+                    window.location.href = "{% url 'delete_sale' 0 %}".replace('0', ventaId);
+                }
+            });
+        }
+    </script>
+    <!-- Confirmar la inserción -->
+    <script>
+        document.getElementById('ventaLecheForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Evita enviar el formulario por defecto
+
+        Swal.fire({
+            title: '¿Desea guardar el registro?',
+            showCancelButton: true,
+            confirmButtonText: 'Sí',
+            cancelButtonText: 'Cancelar',
+            icon: 'question'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Ahora sí se envia el formulario
+                this.submit();
+            }
+        });
+    });
+    
+    document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('submit_btn').addEventListener('click', function() {
+                event.preventDefault()
+                var cantidad = document.getElementById('cantidadCabezas').value
+                var idcabezas = document.getElementById('idCabezas')
+                var numIdsSeleccionados = idcabezas.selectedOptions.length 
+                console.log(numIdsSeleccionados, parseInt(cantidad))
+                if (numIdsSeleccionados !== parseInt(cantidad)) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'La cantidad de cabezas no coincide con la cantidad de IDs',
+                        icon: 'error',
+                        confirmButtonColor: '#3085d6',
+                        confirmButtonText: 'Ok'
+                    })
+                } else {
+                   Swal.fire({
+                    title: '¿Desea guardar el registro?',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí',
+                    cancelButtonText: 'Cancelar',
+                    icon: 'question'
+                   }).then((result) => {
+                        if (result.isConfirmed) {
+                            document.getElementById('cabezaGanadoForm').submit()
+                        }
+                   })
+                }
+            })
+        })
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var opcionTipo = document.getElementById('tipoGanado');
+            var selectIdCabezas = document.getElementById('idCabezas');
+            var cantidadCabezas = document.getElementById('cantidadCabezas');
+            var precioVenta = document.getElementById('precioVenta')
+            var observacionesGanado = document.getElementById('observacionesGanado')
+            var nombreCliente = document.getElementById('nombreCliente')
+            var emailCliente = document.getElementById('emailCliente')
+    
+            opcionTipo.addEventListener('change', function() {
+                var opcionSeleccionada = opcionTipo.value;
+    
+                if (opcionSeleccionada === '0') {
+                    cantidadCabezas.disabled = true;
+                    selectIdCabezas.disabled = true;
+                    observacionesGanado.disabled = true;
+                    nombreCliente.disabled = true;
+                    emailCliente.disabled = true;
+                } else {
+                    cantidadCabezas.disabled = false;
+                    selectIdCabezas.disabled = false;
+                    observacionesGanado.disabled = false;
+                    nombreCliente.disabled = false;
+                    emailCliente.disabled = false;
+                }
+    
+                selectIdCabezas.innerHTML = '';
+    
+                if (opcionSeleccionada !== '0') {
+                    fetch("{% url 'insert_sale' %}", {
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        let animalData = data.animal_data;
+                        for (var i = 0; i < animalData.length; i++) {
+                            var animal = animalData[i];
+                            if (animal.edad_categoria === opcionSeleccionada & animal.estado === 'en poseción') {
+                                var opcion = document.createElement('option');
+                                opcion.value = animal.num_id;
+                                opcion.textContent = animal.animalString;
+                                selectIdCabezas.appendChild(opcion);
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data:', error);
+                    });
+                }
+            });
+    
+            cantidadCabezas.addEventListener('input', function() {
+                var cantidad = parseInt(this.value);
+                var numOpciones = selectIdCabezas.options.length;
+    
+                if (cantidad > numOpciones) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'La cantidad de cabezas no puede ser mayor a la cantidad de animales',
+                        icon: 'error',
+                        confirmButtonColor: '#3085d6',
+                        confirmButtonText: 'Ok'
+                    });
+                    cantidadCabezas.value = '';
+                }
+            });
+            if (opcionTipo.value === '0') {
+                cantidadCabezas.disabled = true;
+                selectIdCabezas.disabled = true;
+                observacionesGanado.disabled = true;
+                emailCliente.disabled = true;
+                nombreCliente.disabled = true;
+            } 
+        });
+    </script>
+    <!-- Confirmar la edición -->
+    <script>
+        document.getElementById('sales_form_update').addEventListener('submit', function(event) {
+        event.preventDefault(); // Evita enviar el formulario por defecto
+
+        Swal.fire({
+            title: '¿Desea guardar los cambios?',
+            showCancelButton: true,
+            confirmButtonText: 'Sí',
+            cancelButtonText: 'Cancelar',
+            icon: 'question'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Ahora sí se envia el formulario
+                this.submit();
+            }
+        });
+    });
+    </script>
+    <!-- Mensajes de confirmación de acciones -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {% for m in messages %}
+    <script>
+        Swal.fire({
+            title: '¡Eliminado!',
+            text: '{{m}}',
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK'
+        })
+    </script>
+    <script>
+        Swal.fire({
+            title: '¡Registro Guardado!',
+            text: '{{m}}',
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK'
+        })
+    </script>
+    <script>
+        Swal.fire({
+            title: '¡Cambios Guardados!',
+            text: '{{m}}',
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK'
+        })
+    </script>
+    
+    {% endfor %}
+    <!--Para los graficos se pueden tener en cuenta, el seguimiento de la produccio de leche de una vaca (lineas)
+    los porcentajes de ventas de cada tipo de ganado (sectores/pastel) el seguimiento de ventas de cabezas (lineas)-->
+    <!-- Apache ECharts -->
+    {% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>

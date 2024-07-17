@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+{% extends 'granja/administrador.html' %}
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block title %}<title>Suministros</title>{% endblock %}
+    <!-- CSS Main -->
+    <link rel="stylesheet" href="{% static 'granja/css/main.css' %}">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" 
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    
+</head>
+<body>
+    {% block content2 %}
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <div class="row">
+        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mx-2 py-2 pl-2">
+          {% if update %}
+          <!-- Form para actualizar -->
+           <h4 class="text-center">Actualizar Suministro: {{ update.name }}</h4>
+          <form class="w-100" method="post" action="{% url 'update_supplie' %}" id="supplie_form_update">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="tipos" class="form-label">Tipo de Suministro</label>
+              <select class="form-select" name="tipos" id="tipos" readonly required>
+                {% for choice in update.TIPOS %}
+                  {% if choice.0 == update.tipo %}
+                    <option value="{{ choice.0 }}" selected>{{ choice.1 }}</option>
+                  {% else %}
+                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+              <div class="mb-3" id="otro_tipo_div" style="display: none;">
+                <label for="otro_tipo" class="form-label">Otro Tipo</label>
+                <input type="text" class="form-control" name="otro_tipo" id="otro_tipo" value="{{ update.otro_tipo }}">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="name" class="form-label">Nombre del Suministro</label>
+              <input type="text" name="name" class="form-control" id="name" value="{{ update.name }}" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="quantity" class="form-label">Cantidad</label>
+              <input type="number" class="form-control" name="quantity" id="quantity" value="{{ update.cantidad }}" required oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+            </div>
+            <div class="mb-3">
+              <label for="unit" class="form-label">Unidad de Medida</label>
+              <input type="text" class="form-control" name="unit" id="unit" value="{{ update.medida }}" required readonly>
+            </div>
+            <div class="mb-3">
+              <label for="lot_number" class="form-label">Número de Lote</label>
+              <input type="text" class="form-control" name="lot_number" id="lot_number" value="{{ update.lote }}" readonly required>
+            </div>
+            <div class="mb-3">
+              <label for="expiration_date" class="form-label">Fecha de Caducidad</label>
+              <input type="date" class="form-control" name="expiration_date" id="expiration_date" value="{{ update.caducidad|date:'Y-m-d' }}" readonly required>
+            </div>
+            <div class="mb-3">
+              <label for="storage_conditions" class="form-label">Condiciones de Almacenamiento</label>
+              <select class="form-select" name="storage_conditions" id="storage_conditions">
+                {% for choice in update.CONDICIONES %}
+                  {% if choice.0 == update.condicion %}
+                    <option value="{{ choice.0 }}" selected>{{ choice.1 }}</option>
+                  {% else %}
+                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+              <div class="mb-3" id="otra_condicion_div" style="display: none;">
+                <label for="otra_condicion" class="form-label">Otra Condicion</label>
+                <input type="text" class="form-control" name="otra_condicion" id="otra_condicion" value="{{ update.otra_condicion }}">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="cost_per_unit" class="form-label">Costo por Unidad</label>
+              <input type="number" class="form-control" name="cost_per_unit" id="cost_per_unit" value="{{ update.unidad }}" required readonly>
+            </div>
+            <div class="mb-3">
+              <label for="detail" class="form-label">Detalle del Suministro</label>
+              <textarea type="text" name="detail" class="form-control" id="detail"></textarea>
+            </div>
+            <input type="hidden" name="id" value="{{ update.id }}" />
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <button type="submit" class="btn btn-primary w-100">Update</button>
+              </div>
+              <div class="col-md-6">
+                <a type="submit" href="{% url 'supplies' %}" class="btn btn-danger w-100">Cancel</a>
+              </div>
+            </div>
+          </form>
+          {% else %}
+          <!-- Form para insertar -->
+           <h4 class="text-center">Agregar Suministro</h4>
+          <form class="w-100" method="post" action="{% url 'insert_supplie' %}" id="form_supplie">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="tipos" class="form-label">Tipo de Suministro</label>
+              <select class="form-select" name="tipos" id="tipos" required>
+                {% for choice in Suministro.TIPOS %}
+                  <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                {% endfor %}
+              </select>
+              <div class="mb-3" id="otro_tipo_div" style="display: none;">
+                <label for="otro_tipo" class="form-label">Otro Tipo</label>
+                <input type="text" class="form-control" name="otro_tipo" id="otro_tipo">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="name" class="form-label">Nombre del Suministro</label>
+              <input type="text" name="name" class="form-control" id="name" required>
+            </div>
+            <div class="mb-3">
+              <label for="quantity" class="form-label">Cantidad</label>
+              <input type="number" class="form-control" name="quantity" id="quantity" required oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+            </div>
+            <div class="mb-3">
+              <label for="unit" class="form-label">Unidad de Medida</label>
+              <input type="text" class="form-control" name="unit" id="unit" required>
+            </div>
+            <div class="mb-3">
+              <label for="lot_number" class="form-label">Número de Lote</label>
+              <input type="text" class="form-control" name="lot_number" id="lot_number" required oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+            </div>
+            <div class="mb-3">
+              <label for="expiration_date" class="form-label">Fecha de Caducidad</label>
+              <input type="date" class="form-control" name="expiration_date" id="expiration_date" required>
+            </div>
+            <div class="mb-3">
+              <label for="storage_conditions" class="form-label">Condiciones de Almacenamiento</label>
+              <select class="form-select" name="storage_conditions" id="storage_conditions">
+                {% for choice in Suministro.CONDICIONES %}
+                  <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                {% endfor %}
+              </select>
+              <div class="mb-3" id="otra_condicion_div" style="display: none;">
+                <label for="otra_condicion" class="form-label">Otra Condicion</label>
+                <input type="text" class="form-control" name="otra_condicion" id="otra_condicion">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="cost_per_unit" class="form-label">Costo por Unidad</label>
+              <input type="text" class="form-control" name="cost_per_unit" id="cost_per_unit" required oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+            </div>
+            <div class="mb-3">
+              <label for="detail" class="form-label">Detalle del Suministro</label>
+              <textarea type="text" name="detail" class="form-control" id="detail"></textarea>
+            </div>
+            <div class="row mb-3">
+              <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                  <button type="submit" id="submit_btn" class="btn btn-success w-100">Add</button>
+              </div>
+              <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                  <a type="submit" href="{% url 'supplies' %}" class="btn btn-danger w-100">Cancel</a>
+              </div>
+          </div>
+          </form>
+          {% endif %}
+        </div>
+        <div class="col-md-5 mx-2 bg-light">
+          <div class="container">
+            <nav class="navbar navbar-light bg-light">
+              <form class="form-inline w-100" method="get" action="{% url 'lista_suministros' %}">
+                <div class="input-group w-100">
+                  <input class="form-control mr-sm-2" type="search" placeholder="Buscar por: Tipo/Nombre/Lote" aria-label="Search">
+                  <div class="input-group-append">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                  </div>
+                </div>
+              </form>
+            </nav>
+          </div>
+          <div class="scroll-div">
+            <div class="scroll-object">
+              <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 container justify-content-center">
+                {% for suministro in db_data %}
+                <div class="row">
+                  <div class="card w-75 my-2 col">
+                    <div class="card-body">
+                      {% if suministro.cantidad <= 10 and suministro.cantidad > 0 %}
+                      <button class="btn" data-bs-toggle="tooltip" data-bs-placement="right" title="Cantidad Critica">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="red" class="bi bi-exclamation-octagon" viewBox="0 0 16 16">
+                          <path d="M4.54.146A.5.5 0 0 1 4.893 0h6.214a.5.5 0 0 1 .353.146l4.394 4.394a.5.5 0 0 1 .146.353v6.214a.5.5 0 0 1-.146.353l-4.394 4.394a.5.5 0 0 1-.353.146H4.893a.5.5 0 0 1-.353-.146L.146 11.46A.5.5 0 0 1 0 11.107V4.893a.5.5 0 0 1 .146-.353zM5.1 1 1 5.1v5.8L5.1 15h5.8l4.1-4.1V5.1L10.9 1z"/>
+                          <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/>
+                        </svg>
+                      </button>
+                      {% elif suministro.cantidad <= 20 and suministro.cantidad > 10 %}
+                      <button class="btn" data-bs-toggle="tooltip" data-bs-placement="right" title="Cantidad Reducida">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="orange" class="bi bi-exclamation-lg" viewBox="0 0 16 16">
+                          <path d="M7.005 3.1a1 1 0 1 1 1.99 0l-.388 6.35a.61.61 0 0 1-1.214 0zM7 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0"/>
+                        </svg>
+                      </button>
+                      {% elif suministro.cantidad == 0 %}
+                      <button class="btn" data-bs-toggle="tooltip" data-bs-placement="right" title="Agotado">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="black" class="bi bi-slash-circle" viewBox="0 0 16 16">
+                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                          <path d="M11.354 4.646a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 .708.708l6-6a.5.5 0 0 0 0-.708"/>
+                        </svg>
+                      </button>
+                      {% else %}
+                      <button class="btn" data-bs-toggle="tooltip" data-bs-placement="right" title="Cantidad Optima">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="green" class="bi bi-check-circle" viewBox="0 0 16 16">
+                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                          <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05"/>
+                        </svg>
+                      </button>
+                      {% endif %}
+                      <h5 class="card-title">Registro Suministro: {{ suministro.name }}
+                        <button class="btn" data-bs-toggle="popover" data-bs-title="Ultima Actualización" data-bs-content="Fecha: {{ suministro.fecha_update }} / Encargado: {{ suministro.encargado_update.first_name }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+                            </svg>
+                        </button>
+                      </h5>
+                      <p class="card-text">Número de Lote: {{ suministro.lote }}</p>
+                      <p class="card-text">Fecha: {{ suministro.fecha_insert }}</p>
+                      <p class="card-text">Encargado: {{ suministro.encargado_insert.first_name }}</p>
+                      
+                      <div class="collapse" id="additionalInfo{{ suministro.id }}">
+                        {% if suministro.tipo != 'otro' %}
+                        <p class="card-text">Tipo de Suministro: {{ suministro.tipo }}</p>
+                        {% else %}
+                        <p class="card-text">Tipo de Suministro: {{ suministro.otro_tipo }}</p>
+                        {% endif %}
+                        {% if suministro.condicion != 'otro' %}
+                        <p class="card-text">Condiciones de Almacenamiento: {{ suministro.condicion }}</p>
+                        {% else %}
+                        <p class="card-text">Condiciones de Almacenamiento: {{ suministro.otra_condicion }}</p>
+                        {% endif %}
+                        <p class="card-text">Fecha de Caducidad: {{ suministro.caducidad }}</p>
+                        <p class="card-text">Unidad de Medida: {{ suministro.medida }}</p>
+                        <p class="card-text">Cantidad:</p>
+                        <div class="row align-items-center">
+                          <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2">
+                            <p class="card-text" id="cantidad">{{ suministro.cantidad }}</p>
+                          </div>
+                          <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2">
+                            <button class="btn" id="menosCantidad" onclick="restarCantidad('{{suministro.lote}}')">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red" class="bi bi-dash-square" viewBox="0 0 16 16">
+                                <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
+                                <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8"/>
+                              </svg>
+                            </button>
+                          </div>
+                          <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2">
+                            <button class="btn" style="display: none;" id="masCantidad" onclick="sumarCantidad('{{suministro.lote}}')">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="green" class="bi bi-plus-square" viewBox="0 0 16 16">
+                                <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
+                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                        <script>
+                          function restarCantidad(suministroLote) {
+                            var cantidadCard = document.getElementById('cantidad')
+                            var cantidad = parseInt(cantidadCard.textContent);
+                            
+                            if (cantidad > 0) {
+                              cantidadCard.textContent = cantidad -1;
+                              mostrarBotonMas();
+                              actualizarCantidadBD(suministroLote, cantidad - 1);
+                            }
+                          }
+
+                          function sumarCantidad(suministroLote) {
+                            var cantidadCard = document.getElementById('cantidad')
+                            var cantidad = parseInt(cantidadCard.textContent);
+                            var cantidadOriginal = parseInt('{{ suministro.cantidad }}')
+                            
+                            if (cantidad < cantidadOriginal) {
+                              cantidadCard.textContent = cantidad +1;
+                              if (cantidad + 1 === cantidadOriginal) {
+                                EsconderBotonMas();
+                              }
+                              actualizarCantidadBD(suministroLote, cantidad + 1)
+                            }
+                          }
+
+                          function mostrarBotonMas() {
+                            var botonMas = document.getElementById('masCantidad');
+                            botonMas.style.display = 'block';
+                          }
+
+                          function EsconderBotonMas() {
+                            var botonMas = document.getElementById('masCantidad');
+                            botonMas.style.display = 'none';
+                          }
+
+                          function actualizarCantidadBD(suministroLote, cantidadNueva) {
+                            console.log(cantidadNueva, suministroLote)
+                            fetch('{% url "update_cantidad" %}', {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': '{{ csrf_token }}',
+                              },
+                              body: JSON.stringify({
+                                'suministro_lote': suministroLote,
+                                'cantidad_nueva': cantidadNueva
+                              })
+                            })
+                          }
+                        </script>
+                        <p class="card-text">Costo por Unidad: ${{ suministro.unidad }}</p>
+                        <p class="card-text">Total Costo Actual: ${{ suministro.total_actual }}</p>
+                        <p class="card-text">Total Costo Inicial: ${{ suministro.total }}</p>
+                        <p class="card-text">Detalle del Suministro: {{ suministro.descripcion }}</p>
+                      </div>
+                      <div class="row mt-2">
+                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                          <button class="btn btn-info toggle-btn" type="button" data-bs-toggle="collapse" data-bs-target="#additionalInfo{{ suministro.id }}" aria-expanded="false" aria-controls="additionalInfo{{ suministro.id }}">
+                            Más
+                          </button>
+                        </div>
+                        {% if suministro.cantidad > 0 %}
+                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                          <a href="{% url 'update_form_supplie' suministro.id %}" class="btn btn-primary">Update</a>
+                        </div>
+                        {% endif %}
+                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                          <a href="#" onclick="confirmDelete('{{ suministro.id }}')" class="btn btn-danger">Delete</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--<div class="container bg-dark">
+        <div class="row p-2 justify-content-between">
+          <div class="col-md-4 col-lg-4 col-xl-4 bg-light">
+            <h2>Gráfico de Precio del Suministro</h2>
+            <form id="formPreciosChart" class="w-100">
+                <div class="mb-2">
+                    <label for="selectPrecios" class="form-label">Seleccione un suministro</label>
+                    <select name="selectPrecios" id="selectPrecios" class="form-select" required>
+                        {% for choice in suministros %}
+                            <option value="{{ choice }}">{{ choice }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="input-group mb-2">
+                  <label class="input-group-text" for="rango_fecha">Seleccione un rango de fecha</label>
+                  <input type="text" name="rango_fecha" id="rango_fecha" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary mb-2">Generar Gráfico</button>
+            </form>
+          </div>
+          <div class="col-md-6 col-lg-6 col-xl-6  bg-light">
+            <div id="chartPrecios" class="bg-light" style="height: 600px;"></div>
+          </div>
+        </div>
+      </div>-->
+      <div class="row mt-3 px-2">
+        <h5>Generar Gráficos</h5>
+        <div class="accordion accordion-flush" id="accordionFlushExample">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                        Gráfico de Precio del Suministro
+                    </button>
+                </h2>
+                <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                    <div class="accordion-body">
+                        <form id="formPreciosChart" class="w-100">
+                            <div class="mb-2">
+                                <label for="selectPrecios" class="form-label">Seleccione un suministro</label>
+                                <select name="selectPrecios" id="selectPrecios" class="form-select" required>
+                                    {% for choice in suministros %}
+                                    <option value="{{ choice }}">{{ choice }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="input-group mb-2">
+                                <label class="input-group-text" for="rango_fecha">Seleccione un rango de fecha</label>
+                                <input type="text" name="rango_fecha" id="rango_fecha" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary mb-2">Generar Gráfico</button>
+                        </form>
+                        <div id="chartPrecios" class="bg-light mt-3" style="height: 600px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+                        Gráfico existencias
+                    </button>
+                </h2>
+                <div id="flush-collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                    <div class="accordion-body">
+                        <form id="formExistenciasChart" class="w-100">
+                            <div class="mb-2">
+                                <label for="selectExistencias" class="form-label">Seleccione un suministro</label>
+                                <select name="selectExistencias" id="selectExistencias" class="form-select">
+                                    {% for choice in suministros %}
+                                    <option value="{{ choice }}">{{ choice }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <button type="submit" class="btn btn-primary mb-2">Generar Gráfico</button>
+                            </div>
+                        </form>
+                        <div id="chartExistencias" class="bg-light mt-3" style="height: 600px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicialización del gráfico de existencias
+            var chartExistencias = echarts.init(document.getElementById('chartExistencias'));
+            var formExistenciasChart = document.getElementById('formExistenciasChart');
+            var optionExistencias = {
+                xAxis: {
+                    type: 'category',
+                    data: []
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [{
+                    type: 'bar',
+                    data: []
+                }]
+            };
+            chartExistencias.setOption(optionExistencias);
+        
+            formExistenciasChart.addEventListener('submit', function(event) {
+                event.preventDefault();
+                var formData = new FormData(formExistenciasChart);
+                var queryString = new URLSearchParams(formData).toString();
+        
+                fetch(`{% url "grafico_existencias" %}?${queryString}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    var lotes = data.lotes;
+                    var existencias = data.existencias;
+                    var nombre = data.nombre;
+                    var random_color = data.color;
+                    chartExistencias.setOption({
+                        title: {
+                            text: 'Seguimiento de existencias: ' + nombre
+                        },
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'shadow'
+                            }
+                        },
+                        xAxis: {
+                            data: lotes
+                        },
+                        series: [{
+                            type: 'bar',
+                            data: existencias,
+                            itemStyle: {
+                                color: random_color
+                            },
+                            lineStyle: {
+                                color: random_color
+                            }
+                        }]
+                    });
+                    
+                    // Redimensionar gráfico al mostrar el panel
+                    chartExistencias.resize();
+                })
+                .catch(error => console.error('Error:', error));
+            });
+    
+            // Inicialización del gráfico de precios del suministro
+            var chartPrecios = echarts.init(document.getElementById('chartPrecios'));
+            var formPreciosChart = document.getElementById('formPreciosChart');
+            var optionPrecios = {
+                xAxis: {
+                    type: 'category',
+                    data: []
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [{
+                    type: 'line',
+                    data: []
+                }]
+            };
+            chartPrecios.setOption(optionPrecios);
+        
+            formPreciosChart.addEventListener('submit', function(event) {
+                event.preventDefault();
+                var formData = new FormData(formPreciosChart);
+                var queryString = new URLSearchParams(formData).toString();
+        
+                fetch(`{% url "grafico_precio" %}?${queryString}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    var fechas = JSON.parse(data.fechas_json);
+                    var precios = JSON.parse(data.precios_json);
+                    var nombre = JSON.parse(data.nombre_json);
+                    var random_color = JSON.parse(data.color_json);
+                    chartPrecios.setOption({
+                        title: {
+                            text: 'Seguimiento de costos: ' + nombre
+                        },
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        xAxis: {
+                            data: fechas
+                        },
+                        series: [{
+                            type: 'line',
+                            data: precios,
+                            itemStyle: {
+                                color: random_color
+                            },
+                            lineStyle: {
+                                color: random_color
+                            }
+                        }]
+                    });
+    
+                    // Redimensionar gráfico al mostrar el panel
+                    chartPrecios.resize();
+                })
+                .catch(error => console.error('Error:', error));
+            });
+    
+            // Redimensionar gráficos al cambiar tamaño de ventana y mostrar panel
+            function resizeCharts() {
+                chartPrecios.resize();
+                chartExistencias.resize();
+            }
+    
+            window.addEventListener('resize', resizeCharts);
+            document.getElementById('accordionFlushExample').addEventListener('shown.bs.collapse', resizeCharts);
+    
+            // Redimensionar gráficos al cargar la página
+            resizeCharts();
+        });
+    </script>
+    
+        <!-- Evento para que aparezca el input al dar en la opción 'Otro' -->
+      <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const tiposSelect = document.getElementById('tipos');
+            const otroTipoDiv = document.getElementById('otro_tipo_div');
+    
+            // Verifica el valor inicial al cargar la página
+            if (tiposSelect.value === 'otro') {
+                otroTipoDiv.style.display = 'block';
+            }
+    
+            // Agrega un evento de cambio al select de tipos
+            tiposSelect.addEventListener('change', function () {
+                if (this.value === 'otro') {
+                    otroTipoDiv.style.display = 'block';
+                } else {
+                    otroTipoDiv.style.display = 'none';
+                }
+            });
+    
+            const healthSelect = document.getElementById('storage_conditions');
+            const otroEstatusDiv = document.getElementById('otra_condicion_div');
+    
+            // Verifica el valor inicial al cargar la página
+            if (healthSelect.value === 'otro') {
+                otroEstatusDiv.style.display = 'block';
+            }
+    
+            // Agrega un evento de cambio al select de estados de salud
+            healthSelect.addEventListener('change', function () {
+                if (this.value === 'otro') {
+                    otroEstatusDiv.style.display = 'block';
+                } else {
+                    otroEstatusDiv.style.display = 'none';
+                }
+            });
+        });
+    </script>   
+    <!-- Confirmar la eliminación -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmDelete(suministroId) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: '¡No podrás revertir esto!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminarlo'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Redirigir a la vista de eliminación
+                    window.location.href = "{% url 'delete_supplie' 0 %}".replace('0', suministroId);
+                }
+            });
+        }
+    </script>
+    <!-- Confirmar la inserción -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('submit_btn').addEventListener('click', function() {
+                event.preventDefault();
+                var lote = document.getElementById('lot_number').value;
+                
+                fetch("{% url 'insert_supplie' %}?lote=" + lote)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.existe) {
+                        Swal.fire({
+                            title: '¡Error!',
+                            text: 'El número de lote ya existe.',
+                            icon: 'error',
+                            confirmButtonColor: '#3085d6',
+                            confirmButtonText: 'Ok'
+                        });
+                    } else {
+                        Swal.fire({
+                            title: '¿Desea guardar el registro?',
+                            showCancelButton: true,
+                            confirmButtonText: 'Sí',
+                            cancelButtonText: 'Cancelar',
+                            icon: 'question'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                document.getElementById('form_supplie').submit();
+                            }
+                        })
+                    }
+                })
+            });
+        });
+    </script>
+    <!-- Confirmar la edición -->
+    <script>
+        document.getElementById('supplie_form_update').addEventListener('submit', function(event) {
+        event.preventDefault(); // Evita enviar el formulario por defecto
+
+        Swal.fire({
+            title: '¿Desea guardar los cambios?',
+            showCancelButton: true,
+            confirmButtonText: 'Sí',
+            cancelButtonText: 'Cancelar',
+            icon: 'question'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Ahora sí se envia el formulario
+                this.submit();
+            }
+        });
+    });
+    </script>
+    <!-- Mensajes de confirmación de acciones -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {% for m in messages %}
+    <script>
+        Swal.fire({
+            title: '¡Eliminado!',
+            text: '{{m}}',
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK'
+        })
+    </script>
+    <script>
+        Swal.fire({
+            title: '¡Registro Guardado!',
+            text: '{{m}}',
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK'
+        })
+    </script>
+    <script>
+        Swal.fire({
+            title: '¡Cambios Guardados!',
+            text: '{{m}}',
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK'
+        })
+    </script>
+    {% endfor %}
+    <!-- Función para cabiar el texto del toggle-btn (pasar a un js general)-->
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const toggleBtns = document.querySelectorAll('.toggle-btn');
+    
+        toggleBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const buttonText = this.innerHTML;
+                if (buttonText.trim() === 'Más') {
+                    this.innerHTML = 'Menos';
+                } else {
+                    this.innerHTML = 'Más';
+                }
+            });
+        });
+    });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-cuBjsnJ7Ykf9JyUzBo5+6b94hanXmHJlljN9NtHmj5i/wOqSjYq5KoPUE4m4Jwb" crossorigin="anonymous"></script>  
+    <script>
+      $(document).ready(function() {
+        $('.collapse-show').collapse();
+        const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
+        const popoverList = [...popoverTriggerList].map(popoverTriggerEl => {
+          const popover = new bootstrap.Popover(popoverTriggerEl);
+          popoverTriggerEl.addEventListener('shown.bs.popover', () => {
+            setTimeout(() => {
+              popover.hide();
+            }, 900);
+          });
+          return popover
+        });
+      });
+      document.addEventListener('DOMContentLoaded', function () {
+      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+      var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+      })
+    });
+    </script> 
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script>
+      $(function() {
+        $('#rango_fecha').daterangepicker({
+          locale: {
+            format: 'YYYY-MM-DD'
+          },
+          startDate: moment().startOf('month'),
+          endDate: moment().endOf('month'),
+          opens: 'right',
+          drops: 'down',
+          showDropdowns: true
+        });
+      });
+    </script>
+    {% endblock %}
+</body>
+</html>
